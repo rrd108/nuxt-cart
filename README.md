@@ -2,7 +2,6 @@
 [![npm version](https://img.shields.io/npm/v/nuxt-cart/latest.svg)](https://www.npmjs.com/package/nuxt-cart)
 [![npm downloads](https://img.shields.io/npm/dm/nuxt-cart.svg)](https://www.npmjs.com/package/nuxt-cart)
 [![License](https://img.shields.io/npm/l/nuxt-cart.svg)](https://github.com/rrd108/nuxt-cart/blob/main/LICENSE)
-[![ci](https://github.com/rrd108/nuxt-cart/actions/workflows/ci.yml/badge.svg)](https://github.com/rrd108/nuxt-cart/actions/workflows/ci.yml)
 [![Nuxt 4](https://img.shields.io/badge/Nuxt-4-00DC82.svg?logo=nuxt.js&logoColor=white)](https://nuxt.com)
 
 A generic, reusable shopping cart module for Nuxt 4 applications. Zero-config localStorage cart out of the box, opt-in server API routes, coupon support, and a hook-based payment gateway system.
@@ -22,21 +21,30 @@ A generic, reusable shopping cart module for Nuxt 4 applications. Zero-config lo
 
 - 📐 **Computed Values**
   - `totalAmount` — sum of `price × quantity`
+  - `discountedTotal` — total after coupon discount
   - `itemCount` — sum of all quantities
   - `isEmpty` — quick empty check
+
+- 🎫 **Coupon Support**
+  - Built-in `applyCoupon` / `removeCoupon` API
+  - `discountedTotal` computed for fixed and percentage discounts
+  - Hook-based validation via `onValidateCoupon`
+  - Persisted with cart state
 
 - 🧩 **Built on Pinia**
   - Pinia setup store under the hood
   - Devtools support out of the box
   - Shared state across components
 
-- 🔌 **Pluggable Architecture**
-  - Coupon system with validation hooks (coming in Phase 2)
-  - Hook-based payment gateway integration (coming in Phase 4)
-  - Server API routes with database support (coming in Phase 4)
+- 🎨 **Nuxt UI Components**
+  - `NCartDrawer` — slide-out cart drawer with `USlideover`
+  - `NCartItem` — line item with image, price, quantity control
+  - `NCartSummary` — subtotal, discount, grand total, checkout CTA
+  - `NCartQuantity` — `+` / `-` quantity selector
 
-- 🎨 **Nuxt UI Components** (coming in Phase 3)
-  - `NCartDrawer`, `NCartItem`, `NCartSummary`, `NCartQuantity`
+- 🔌 **Pluggable Architecture** (coming in Phase 4-5)
+  - Hook-based payment gateway integration
+  - Server API routes with database support
 
 ## Installation
 
@@ -111,6 +119,48 @@ function buy(product: { id: string; name: string; price: number }) {
 </template>
 ```
 
+### With components
+
+Requires `@nuxt/ui` v4:
+
+```vue
+<script setup lang="ts">
+const cart = useCart()
+const isCartOpen = ref(false)
+</script>
+
+<template>
+  <UButton @click="isCartOpen = true">
+    Cart ({{ cart.itemCount.value }})
+  </UButton>
+
+  <NCartDrawer
+    :open="isCartOpen"
+    @close="isCartOpen = false"
+    @checkout="handleCheckout"
+  />
+</template>
+```
+
+### With coupons
+
+```typescript
+const cart = useCart()
+
+// Register a validation hook
+cart.onValidateCoupon(async (code) => {
+  const { data } = await useFetch('/api/coupon/validate', { query: { code } })
+  return data.value // { code, discount, type } or null
+})
+
+// Apply a coupon
+await cart.applyCoupon('SUMMER20')
+console.log(cart.discountedTotal.value) // total after discount
+
+// Remove coupon
+cart.removeCoupon()
+```
+
 ### With quantity
 
 ```typescript
@@ -135,11 +185,13 @@ cart.updateQuantity('p1', 0)  // also removes
 ```typescript
 const cart = useCart()
 
-cart.items           // CartItem[]
-cart.totalAmount     // sum of price * quantity
-cart.itemCount       // sum of all quantities
-cart.isEmpty         // boolean
-cart.isHydrated      // true after localStorage restore
+cart.items              // CartItem[]
+cart.coupon             // Coupon | null
+cart.totalAmount        // sum of price * quantity
+cart.discountedTotal    // total after coupon discount
+cart.itemCount          // sum of all quantities
+cart.isEmpty            // boolean
+cart.isHydrated         // true after localStorage restore
 ```
 
 ## API
@@ -149,14 +201,19 @@ cart.isHydrated      // true after localStorage restore
 | Return | Type | Description |
 |--------|------|-------------|
 | `items` | `Ref<CartItem[]>` | Array of cart items |
-| `totalAmount` | `ComputedRef<number>` | Sum of `price × quantity` |
+| `coupon` | `Ref<Coupon \| null>` | Currently applied coupon |
+| `totalAmount` | `ComputedRef<number>` | Sum of `price × quantity` (before discount) |
+| `discountedTotal` | `ComputedRef<number>` | Total after coupon discount |
 | `itemCount` | `ComputedRef<number>` | Total number of items (sum of quantities) |
 | `isEmpty` | `ComputedRef<boolean>` | Whether the cart has any items |
 | `isHydrated` | `Ref<boolean>` | `true` after localStorage data is loaded |
-| `addItem(item)` | `(input) => void` | Add item (merges by `productId`, increments quantity) |
+| `addItem(input)` | `() => void` | Add item (merges by `productId`, increments quantity) |
 | `removeItem(productId)` | `(id: string) => void` | Remove all of a product line |
 | `updateQuantity(productId, qty)` | `(id: string, qty: number) => void` | Set exact quantity (removes if 0) |
-| `clear()` | `() => void` | Empty the cart |
+| `clear()` | `() => void` | Empty the cart and remove coupon |
+| `applyCoupon(code)` | `(code: string) => Promise<void>` | Apply coupon via registered hook |
+| `removeCoupon()` | `() => void` | Remove the active coupon |
+| `onValidateCoupon(hook)` | `(hook: ValidateCouponHook) => void` | Register coupon validation handler |
 | `persist()` | `() => void` | Save to localStorage |
 | `load()` | `() => void` | Restore from localStorage |
 
@@ -181,28 +238,28 @@ If an item with the same `productId` already exists, its quantity is incremented
 |--------|------|---------|-------------|
 | `persist` | `boolean` | `true` | Enable localStorage persistence |
 | `storageKey` | `string` | `'nuxt-cart'` | localStorage key |
-| `currency` | `string` | `'USD'` | Currency symbol/format |
+| `currency` | `string` | `'USD'` | Currency format |
 | `maxQuantity` | `number` | `99` | Maximum quantity per item |
+| `coupons` | `boolean` | `false` | Enable coupon support |
 | `apiRoutes` | `boolean` | `false` | Enable server API routes (Phase 4) |
-| `coupons` | `boolean` | `false` | Enable coupon support (Phase 2) |
 
 ## Types
 
 Import types from the module:
 
 ```typescript
-import type { ModuleOptions, CartItem, CartState, Coupon } from 'nuxt-cart'
+import type { ModuleOptions, CartItem, CartState, Coupon, CheckoutHook, ValidateCouponHook } from 'nuxt-cart'
 ```
 
 ## Persistence Behavior
 
 The module automatically:
-1. On mount — loads cart from `localStorage` and validates item shapes
-2. On every change — deep-watches `items` and auto-saves
+1. On mount — loads cart from `localStorage` and validates item/coupon shapes
+2. On every change — deep-watches `items` + `coupon` and auto-saves
 3. On `beforeunload` / `pagehide` — saves as a safety net
 4. On server — no localStorage access, `isHydrated` stays `false`
 
-Corrupt data is silently discarded; invalid items are filtered out during hydration.
+Corrupt data is silently discarded; invalid items and coupons are filtered out during hydration.
 
 ## Agent Skill
 
@@ -222,11 +279,17 @@ nuxt-cart/
 │   ├── default-options.ts         # Default configuration
 │   └── runtime/
 │       ├── plugin.ts              # Hydration + auto-persist
-│       └── composables/
-│           └── useCart.ts         # Pinia store + composable
+│       ├── composables/
+│       │   └── useCart.ts         # Pinia store + composable
+│       └── components/
+│           ├── NCartDrawer.vue
+│           ├── NCartItem.vue
+│           ├── NCartSummary.vue
+│           └── NCartQuantity.vue
 ├── test/
 │   └── composables/
-│       └── useCart.spec.ts        # Unit tests (35 tests)
+│       └── useCart.spec.ts        # 49 unit tests
+├── docs/                          # VitePress documentation
 ├── package.json
 ├── build.config.ts
 ├── tsconfig.json
@@ -247,6 +310,9 @@ pnpm test:watch
 
 # Build the module
 pnpm prepack
+
+# Documentation
+pnpm docs:dev
 ```
 
 ## Implementation Status
@@ -254,10 +320,10 @@ pnpm prepack
 | Phase | Feature | Status |
 |-------|---------|--------|
 | **1 (MVP)** | `useCart()` + Pinia store + localStorage + types + plugin | ✅ Done |
-| **2** | Coupons (`applyCoupon`, `discountedTotal`, validation hook) | 🔜 Planned |
-| **3** | Nuxt UI components (`NCartDrawer`, `NCartItem`, `NCartSummary`, `NCartQuantity`) | 🔜 Planned |
-| **4** | Server API routes + DB + token middleware + checkout | 🔜 Planned |
-| **5** | Tests, docs, playground, publish | 🏗️ In progress |
+| **2 (Coupons)** | `applyCoupon`, `removeCoupon`, `discountedTotal`, validation hooks | ✅ Done |
+| **3 (Components)** | `NCartDrawer`, `NCartItem`, `NCartSummary`, `NCartQuantity` | ✅ Done |
+| **4 (Server)** | REST API + DB + token middleware + checkout | 🔜 Next |
+| **5 (Polish)** | `onCheckout`/`checkout` hooks, playground, CI, publish | 🔜 Planned |
 
 ## License
 
