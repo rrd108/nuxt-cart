@@ -17,7 +17,7 @@ pnpm test:watch
 ```
 test/
 └── composables/
-    └── useCart.spec.ts    # 35 unit tests
+    └── useCart.spec.ts    # 49 unit tests
 ```
 
 ## Test Categories
@@ -69,11 +69,27 @@ test/
 - Invalid item filtering on load
 - Round-trip: persist → load → correct state
 
+### Coupons (14 tests)
+- No coupon initially
+- applyCoupon with fixed discount
+- applyCoupon with percentage discount
+- Invalid coupon (hook returns null) is rejected
+- Coupon not applied when `coupons: false`
+- Coupon not applied when no hook registered
+- removeCoupon clears the coupon
+- discountedTotal equals totalAmount without coupon
+- discountedTotal updates when items change
+- discountedTotal clamped to zero
+- clear removes coupon too
+- Persist saves coupon
+- Load restores coupon
+- Invalid coupon shape ignored on load
+
 ### Multiple Store Instances (2 tests)
 - Shared state (same Pinia instance)
 - Isolated state (different Pinia instances)
 
-Total: **35 tests**
+Total: **49 tests**
 
 ## Mocking Approach
 
@@ -81,7 +97,7 @@ Nuxt-specific modules are mocked:
 
 ```ts
 vi.mock('#app', () => ({
-  useRuntimeConfig: () => ({
+  useRuntimeConfig: vi.fn(() => ({
     public: {
       nuxtCart: {
         persist: false,
@@ -92,7 +108,7 @@ vi.mock('#app', () => ({
         currency: 'USD',
       },
     },
-  }),
+  })),
 }))
 ```
 
@@ -133,5 +149,4 @@ describe('feature name', () => {
 ```
 
 For future phases, add test files:
-- `test/composables/useCart-coupon.spec.ts` (Phase 2)
 - `test/server/api.test.ts` (Phase 4)

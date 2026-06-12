@@ -12,11 +12,16 @@ nuxt-cart/
 │   ├── default-options.ts         # Default configuration values
 │   └── runtime/
 │       ├── plugin.ts              # Nuxt plugin — hydration, auto-save, event listeners
-│       └── composables/
-│           └── useCart.ts         # Pinia store + useCart() wrapper
+│       ├── composables/
+│       │   └── useCart.ts         # Pinia store + useCart() wrapper (items + coupons)
+│       └── components/
+│           ├── NCartDrawer.vue    # Slide-out drawer
+│           ├── NCartItem.vue      # Single line item
+│           ├── NCartSummary.vue   # Total breakdown + checkout
+│           └── NCartQuantity.vue  # Quantity selector
 ├── test/
 │   └── composables/
-│       └── useCart.spec.ts        # 35 unit tests
+│       └── useCart.spec.ts        # 49 unit tests
 ├── docs/                          # VitePress documentation
 ├── package.json
 ├── build.config.ts
@@ -31,13 +36,17 @@ The module entry point. Sets up runtime config, registers the plugin, auto-impor
 
 ### `src/runtime/composables/useCart.ts`
 
-Contains both the Pinia store definition (`useCartStore`) and the public composable (`useCart()`). The store handles all state and logic; the composable wraps it with `storeToRefs` for clean reactivity.
+Contains both the Pinia store definition (`useCartStore`) and the public composable (`useCart()`). The store handles all state and logic including items, coupons, and checkout hooks; the composable wraps it with `storeToRefs` for clean reactivity.
+
+### `src/runtime/components/`
+
+Four Vue components built on `@nuxt/ui` v4: `NCartDrawer`, `NCartItem`, `NCartSummary`, `NCartQuantity`. They use `useCart()` internally and auto-imported Nuxt composables.
 
 ### `src/runtime/plugin.ts`
 
 Nuxt plugin that:
 - Calls `load()` on app mount for localStorage hydration
-- Deep-watches `items` and auto-saves
+- Deep-watches `items` and `coupon` for auto-save
 - Registers `beforeunload` / `pagehide` fallback saves
 
 ## Development Setup
@@ -56,23 +65,4 @@ pnpm prepack
 
 ## Testing
 
-Tests use vitest with Pinia. Nuxt-specific imports (`#app`) are mocked:
-
-```ts
-vi.mock('#app', () => ({
-  useRuntimeConfig: () => ({
-    public: {
-      nuxtCart: {
-        persist: false,
-        storageKey: 'nuxt-cart-test',
-        maxQuantity: 10,
-        coupons: false,
-        apiRoutes: false,
-        currency: 'USD',
-      },
-    },
-  }),
-}))
-```
-
-Write new tests following the existing patterns in `test/composables/useCart.spec.ts`. Future phases will add server API tests using `@nuxt/test-utils`.
+Tests use vitest with Pinia. Nuxt-specific imports (`#app`) are mocked. See the [Testing guide](./testing) for details.

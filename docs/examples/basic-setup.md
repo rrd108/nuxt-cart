@@ -237,6 +237,88 @@ function decrement(productId: string, currentQty: number) {
 </script>
 ```
 
+## Using Cart Components
+
+The module provides ready-to-use components when `@nuxt/ui` v4 is installed:
+
+```vue
+<script setup lang="ts">
+const cart = useCart()
+const isCartOpen = ref(false)
+
+function addToCart(product: { id: string; name: string; price: number }) {
+  cart.addItem({
+    productId: product.id,
+    name: product.name,
+    price: product.price,
+  })
+  isCartOpen.value = true
+}
+</script>
+
+<template>
+  <div>
+    <UButton @click="isCartOpen = true">
+      Cart ({{ cart.itemCount.value }})
+    </UButton>
+
+    <NCartDrawer
+      :open="isCartOpen"
+      @close="isCartOpen = false"
+      @checkout="handleCheckout"
+    />
+  </div>
+</template>
+```
+
+## Using Coupons
+
+Enable coupon support in your config:
+
+```ts
+// nuxt.config.ts
+export default defineNuxtConfig({
+  modules: ['@pinia/nuxt', 'nuxt-cart'],
+  nuxtCart: {
+    coupons: true,
+  },
+})
+```
+
+Then in your app:
+
+```vue
+<script setup lang="ts">
+const cart = useCart()
+
+// Register a validation hook
+cart.onValidateCoupon(async (code) => {
+  const { data } = await useFetch('/api/coupon/validate', { query: { code } })
+  return data.value // { code, discount, type } or null
+})
+
+async function applyCoupon() {
+  await cart.applyCoupon('SUMMER20')
+  if (cart.coupon.value) {
+    // Coupon applied — discountedTotal reflects the discount
+  }
+}
+
+function removeCoupon() {
+  cart.removeCoupon()
+}
+</script>
+
+<template>
+  <div>
+    <p>Total: {{ cart.totalAmount.value }}</p>
+    <p v-if="cart.coupon.value">Discounted: {{ cart.discountedTotal.value }}</p>
+    <button @click="applyCoupon">Apply Coupon</button>
+    <button @click="removeCoupon">Remove Coupon</button>
+  </div>
+</template>
+```
+
 ## Testing Your Setup
 
 ```bash
@@ -251,6 +333,7 @@ npm run dev
 
 ## Next Steps
 
+- [Components](/user-guide/components) — Ready-to-use cart UI components
 - [Configuration](/user-guide/configuration) — Customize module options
 - [Composables](/user-guide/composables) — Full `useCart()` API reference
 - [Persistence](/user-guide/persistence) — How hydration and auto-save work

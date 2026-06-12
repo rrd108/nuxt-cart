@@ -19,7 +19,7 @@ Default settings:
 | `storageKey` | `'nuxt-cart'` | localStorage key |
 | `maxQuantity` | `99` | Maximum quantity per item |
 | `currency` | `'USD'` | Currency for display |
-| `coupons` | `false` | Enable coupon support (Phase 2) |
+| `coupons` | `false` | Enable coupon support |
 | `apiRoutes` | `false` | Enable server API routes (Phase 4) |
 
 ## Complete Configuration Options
@@ -40,7 +40,7 @@ export default defineNuxtConfig({
     // Display
     currency: 'HUF',
 
-    // Coming in Phase 2
+    // Coupons
     // coupons: true,
 
     // Coming in Phase 4
@@ -79,7 +79,7 @@ export default defineNuxtConfig({
 
 - **Type:** `boolean`
 - **Default:** `false`
-- **Description:** Enable coupon functionality. When enabled, the composable exposes `applyCoupon()`, `removeCoupon()`, and `discountedTotal`. (Planned for Phase 2.)
+- **Description:** Enable coupon functionality. When enabled, the composable exposes `applyCoupon()`, `removeCoupon()`, `coupon`, and `discountedTotal`. Requires a validation hook registered via `onValidateCoupon`.
 
 ### `apiRoutes`
 

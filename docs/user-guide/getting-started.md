@@ -115,11 +115,53 @@ That's it! You now have a fully functional shopping cart. 🎉
 3. Refresh the page — items are persisted in localStorage
 4. Remove items or clear the cart
 
+## Using Components
+
+With `@nuxt/ui` v4 installed, you can use the built-in components:
+
+```vue
+<script setup lang="ts">
+const cart = useCart()
+const isCartOpen = ref(false)
+</script>
+
+<template>
+  <UButton @click="isCartOpen = true">
+    Cart ({{ cart.itemCount.value }})
+  </UButton>
+
+  <NCartDrawer
+    :open="isCartOpen"
+    @close="isCartOpen = false"
+    @checkout="handleCheckout"
+  />
+</template>
+```
+
+## Using Coupons
+
+Enable coupons in config and register a validation hook:
+
+```vue
+<script setup lang="ts">
+const cart = useCart()
+
+cart.onValidateCoupon(async (code) => {
+  const { data } = await useFetch('/api/coupon/validate', { query: { code } })
+  return data.value
+})
+
+await cart.applyCoupon('SUMMER20')
+console.log(cart.discountedTotal.value)
+</script>
+```
+
 ## Next Steps
 
 Now that you have a working cart, you might want to:
 
-- **[Configure the Module](./configuration.md)** — Customize storage key, max quantity, currency
+- **[Use the Components](./components.md)** — Ready-to-use cart UI
+- **[Configure the Module](./configuration.md)** — Customize storage key, max quantity, currency, coupons
 - **[Explore the Composables API](./composables.md)** — Full `useCart()` reference
 - **[Understand Persistence](./persistence.md)** — How hydration and type-guard validation work
 - **[Try the Examples](/examples/basic-setup)** — Complete implementation patterns

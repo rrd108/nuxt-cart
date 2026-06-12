@@ -120,7 +120,7 @@ cart.load()
 }
 ```
 
-The `coupon` field is reserved for future use (Phase 2). The `updatedAt` timestamp tracks when the cart was last saved.
+The `coupon` field stores the active coupon (when applicable). The `updatedAt` timestamp tracks when the cart was last saved.
 
 ## Next Steps
 

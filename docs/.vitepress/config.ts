@@ -27,6 +27,7 @@ export default defineConfig({
               { text: 'Installation', link: '/user-guide/installation' },
               { text: 'Configuration', link: '/user-guide/configuration' },
               { text: 'Composables', link: '/user-guide/composables' },
+              { text: 'Components', link: '/user-guide/components' },
               { text: 'Persistence', link: '/user-guide/persistence' },
             ],
           },

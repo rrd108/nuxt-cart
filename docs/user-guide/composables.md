@@ -27,13 +27,35 @@ interface CartItem {
 }
 ```
 
+```ts
+coupon: Ref<Coupon | null>
+```
+
+The currently applied coupon, or `null` if no coupon is active.
+
+```ts
+interface Coupon {
+  code: string            // Coupon code (e.g., "SUMMER20")
+  discount: number        // Discount amount (currency or percentage)
+  type: 'fixed' | 'percentage'  // Discount type
+}
+```
+
+Only available when `coupons: true` is set in module configuration.
+
 ### Computed Properties
 
 ```ts
 totalAmount: ComputedRef<number>
 ```
 
-Sum of `price × quantity` for all items.
+Sum of `price × quantity` for all items (before any discount).
+
+```ts
+discountedTotal: ComputedRef<number>
+```
+
+Total after applying the active coupon. For fixed discounts: `max(0, total - discount)`. For percentage discounts: `max(0, round(total × (100 - discount) / 100))`. When no coupon is active, equals `totalAmount`.
 
 ```ts
 itemCount: ComputedRef<number>
@@ -91,7 +113,46 @@ Set the exact quantity for a product. If `quantity` is 0 or negative, the item i
 clear(): void
 ```
 
-Remove all items from the cart.
+Remove all items and the active coupon from the cart.
+
+### Coupon Mutations
+
+Requires `coupons: true` in module configuration.
+
+```ts
+async applyCoupon(code: string): Promise<void>
+```
+
+Attempt to apply a coupon by code. Requires a validation hook to be registered first via `onValidateCoupon`. The hook receives the code and returns a `Coupon` object if valid, or `null` if invalid.
+
+```ts
+removeCoupon(): void
+```
+
+Remove the currently applied coupon.
+
+```ts
+onValidateCoupon(hook: ValidateCouponHook): void
+```
+
+Register a coupon validation handler.
+
+```ts
+type ValidateCouponHook = (code: string) => Promise<Coupon | null>
+```
+
+Example:
+
+```ts
+const cart = useCart()
+
+cart.onValidateCoupon(async (code) => {
+  const { data } = await useFetch('/api/coupon/validate', { query: { code } })
+  return data.value
+})
+
+await cart.applyCoupon('SUMMER20')
+```
 
 ### Persistence
 
@@ -99,20 +160,38 @@ Remove all items from the cart.
 persist(): void
 ```
 
-Manually save the current cart state to localStorage. Called automatically by the plugin on every change.
+Manually save the current cart state (items + coupon) to localStorage. Called automatically by the plugin on every change.
 
 ```ts
 load(): void
 ```
 
-Manually restore cart state from localStorage. Called automatically by the plugin on app mount. Filters out invalid items using a type guard.
+Manually restore cart state from localStorage. Called automatically by the plugin on app mount. Filters out invalid items and coupons using type guards.
+
+### Checkout Hooks
+
+```ts
+onCheckout(hook: CheckoutHook): void
+```
+
+Register a checkout handler. Multiple handlers can be registered; they run sequentially. The first to return a `redirectUrl` wins.
+
+```ts
+type CheckoutHook = (cart: CartState) => Promise<{ redirectUrl?: string; error?: string }>
+```
+
+```ts
+async checkout(): Promise<{ redirectUrl?: string; error?: string }>
+```
+
+Execute checkout. Serializes the cart and passes it to all registered hooks.
 
 ## Type Imports
 
 Import types from the module directly:
 
 ```ts
-import type { CartItem, CartState, ModuleOptions } from 'nuxt-cart'
+import type { CartItem, CartState, Coupon, ModuleOptions, CheckoutHook, ValidateCouponHook } from 'nuxt-cart'
 ```
 
 ## Full Example
@@ -143,6 +222,7 @@ function remove() {
   <div>
     <p>Items: {{ cart.itemCount.value }}</p>
     <p>Total: {{ cart.totalAmount.value }}</p>
+    <p>Discounted: {{ cart.discountedTotal.value }}</p>
     <p>Empty: {{ cart.isEmpty.value }}</p>
     <p>Hydrated: {{ cart.isHydrated.value }}</p>
   </div>
@@ -151,6 +231,7 @@ function remove() {
 
 ## Next Steps
 
+- [Components](./components) — Ready-to-use cart UI components
 - [Persistence](./persistence) — How hydration and auto-save work
 - [Examples](/examples/basic-setup) — Complete implementation patterns
 - [API Reference](/api/types) — Full type documentation

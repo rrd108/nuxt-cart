@@ -81,9 +81,29 @@ The `setup()` function in `module.ts`:
 4. Registers the composables directory for auto-imports
 5. Registers the components directory (for future NCart* components)
 
-## Future Architecture
+## Component Architecture (Phase 3)
 
-### Phase 2 — Coupons
+Components are registered globally by the module and use `useCart()` internally:
+
+```
+NCartDrawer
+  ├── NCartItem (v-for items)
+  │     └── NCartQuantity
+  ├── Coupon input (if coupons enabled)
+  └── NCartSummary
+        └── UButton (checkout)
+```
+
+Components rely on `@nuxt/ui` v4 and use its semantic CSS classes (`text-default`, `bg-muted`, `border-border`). They are optional — the headless `useCart()` API works without them.
+
+## Phases
+
+### Phase 1 — MVP (Done)
+- `useCart()` composable with items CRUD
+- Pinia store with localStorage persistence
+- SSR-safe hydration
+
+### Phase 2 — Coupons (Done)
 ```
 useCart()
   ├── coupon: Ref<Coupon | null>
@@ -91,6 +111,10 @@ useCart()
   ├── applyCoupon(code): Promise<void>  → calls validateCoupon hook
   └── removeCoupon(): void
 ```
+
+### Phase 3 — Components (Done)
+- `NCartDrawer`, `NCartItem`, `NCartSummary`, `NCartQuantity`
+- Built on `@nuxt/ui` v4, global `N` prefix
 
 ### Phase 4 — Server API
 ```

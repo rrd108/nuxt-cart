@@ -9,7 +9,8 @@ Nuxt Cart is a standalone, backend-agnostic shopping cart module that provides:
 - **Cart Management** — Add, remove, and update items with quantity support
 - **Automatic Persistence** — SSR-safe localStorage with hydration and auto-save
 - **Pinia-Powered** — Reactive state management with devtools support
-- **Coupon Support** — Built-in coupon logic with validation hooks (coming in Phase 2)
+- **Coupon Support** — Built-in coupon logic with validation hooks
+- **Nuxt UI Components** — Ready-to-use drawer, item, summary, and quantity components
 - **Payment Gateways** — Hook-based checkout system for any payment provider (coming in Phase 4)
 
 ## Why Choose Nuxt Cart?
@@ -30,6 +31,9 @@ Nuxt Cart is a standalone, backend-agnostic shopping cart module that provides:
 
 ### 🛒 Cart Management
 - [Composables](./composables.md) — Full `useCart()` API reference
+
+### 🧩 Components
+- [Components](./components.md) — NCartDrawer, NCartItem, NCartSummary, NCartQuantity
 
 ### 💾 Persistence
 - [Persistence Guide](./persistence.md) — How localStorage hydration and auto-save work
