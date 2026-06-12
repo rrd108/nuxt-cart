@@ -1,0 +1,49 @@
+{
+  "name": "nuxt-cart",
+  "version": "0.1.0",
+  "type": "module",
+  "license": "MIT",
+  "exports": {
+    ".": {
+      "types": "./dist/module.d.mts",
+      "import": "./dist/module.mjs"
+    }
+  },
+  "main": "./dist/module.mjs",
+  "types": "./dist/module.d.mts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "prepack": "nuxt-module-build build",
+    "dev": "nuxi dev playground",
+    "dev:build": "nuxi build playground",
+    "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
+    "test": "vitest run",
+    "test:watch": "vitest watch",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
+  },
+  "dependencies": {
+    "@nuxt/kit": "^4.0.0",
+    "defu": "^6.1.4",
+    "destr": "^2.0.3"
+  },
+  "devDependencies": {
+    "@nuxt/module-builder": "^1.0.0",
+    "@nuxt/schema": "^4.0.0",
+    "@types/node": "^22.14.1",
+    "nuxt": "^4.0.0",
+    "pinia": "^3.0.0",
+    "typescript": "~5.8.3",
+    "vitepress": "^1.6.4",
+    "vitest": "^3.1.2",
+    "vue": "^3.5.38",
+    "vue-tsc": "^3.0.0"
+  },
+  "peerDependencies": {
+    "@pinia/nuxt": "^0.x.x",
+    "pinia": "^3.0.0"
+  }
+}
