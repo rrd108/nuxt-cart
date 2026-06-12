@@ -43,7 +43,13 @@
     "vue-tsc": "^3.0.0"
   },
   "peerDependencies": {
+    "@nuxt/ui": "^4.0.0",
     "@pinia/nuxt": "^0.x.x",
     "pinia": "^3.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@nuxt/ui": {
+      "optional": true
+    }
   }
 }
