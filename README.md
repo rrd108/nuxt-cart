@@ -64,6 +64,21 @@ The module requires `@pinia/nuxt` in your project:
 npm install @pinia/nuxt
 ```
 
+If you plan to use server API routes with a database, also install the driver for your database:
+
+```bash
+# SQLite (default)
+npm install better-sqlite3
+
+# MySQL
+npm install mysql2
+
+# PostgreSQL
+npm install pg
+```
+
+> The database drivers are optional peer dependencies — they are never installed or loaded unless you explicitly add them. The module works as a client-only localStorage cart with zero extra packages.
+
 Add the module to your `nuxt.config.ts`:
 
 ```typescript
@@ -111,7 +126,7 @@ Default settings:
 - Currency: `USD`
 - Coupons disabled
 - API routes disabled
-- Database: SQLite (when `apiRoutes: true`, auto-created at `./data/cart.sqlite3`)
+- Database: not configured by default (install `better-sqlite3` and set `apiRoutes: true` to enable)
 
 ## Usage
 
@@ -216,6 +231,8 @@ cart.isHydrated         // true after localStorage restore
 
 ### With server API routes
 
+> **Prerequisite:** You must install the database driver package first — see [Installation](#installation) above.
+
 When `apiRoutes: true`, all mutations sync to the server, and the cart is restored from the server on hydration:
 
 ```typescript
@@ -306,7 +323,7 @@ If an item with the same `productId` already exists, its quantity is incremented
 | `maxQuantity` | `number` | `99` | Maximum quantity per item |
 | `coupons` | `boolean` | `false` | Enable coupon support |
 | `apiRoutes` | `boolean` | `false` | Enable server API routes + DB persistence |
-| `connector` | `DatabaseConfig` | `{ name: 'sqlite', options: { path: './data/cart.sqlite3' } }` | Database connector config (db0) |
+| `connector` | `DatabaseConfig` | `{ name: 'sqlite', options: { path: './data/cart.sqlite3' } }` | Database connector config (db0). Requires the corresponding driver package to be installed (`better-sqlite3`, `mysql2`, or `pg`). |
 
 ## Types
 
@@ -330,6 +347,8 @@ Set `persist: false` to disable automatic hydration and auto-save. Manual `cart.
 Corrupt data is silently discarded; invalid items and coupons are filtered out during hydration.
 
 ### Server DB Persistence (when `apiRoutes: true`)
+
+> **Prerequisite:** Install the database driver package (`pnpm add better-sqlite3`, `mysql2`, or `pg`) — the module does not install it automatically.
 
 In addition to localStorage, the cart state is persisted to a database via `db0`:
 - Cart created via `POST /api/cart` returns a token (stored in httpOnly cookie)
