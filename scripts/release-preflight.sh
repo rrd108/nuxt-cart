@@ -11,6 +11,16 @@ if [ -n "$(git status --porcelain)" ]; then
   exit 1
 fi
 
+push_url="$(git remote get-url --push origin 2>/dev/null || true)"
+case "$push_url" in
+  https://github.com/*|http://github.com/*)
+    echo "❌ Git push remote uses HTTPS: $push_url"
+    echo "   GitHub no longer accepts password auth. Switch to SSH:"
+    echo "   git remote set-url origin git@github.com:rrd108/nuxt-cart.git"
+    exit 1
+    ;;
+esac
+
 git fetch origin
 
 behind="$(git rev-list HEAD..origin/main --count 2>/dev/null || echo 0)"
