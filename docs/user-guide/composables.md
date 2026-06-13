@@ -75,6 +75,18 @@ isHydrated: Ref<boolean>
 
 `false` on the server and during initial client load. Becomes `true` after localStorage data is restored. Useful for avoiding hydration mismatches in SSR.
 
+```ts
+cartToken: Ref<string | null>
+```
+
+The cart token from the server API. Only available when `apiRoutes: true`. Set automatically by the `cart-token` middleware via httpOnly cookie.
+
+```ts
+isServerSynced: Ref<boolean>
+```
+
+`true` after a successful server sync. When `apiRoutes: true`, the composable sends all mutations to the server (optimistic local + fire-and-forget) and fetches server state on hydration. This flag indicates the initial server fetch has completed.
+
 ### Mutations
 
 ```ts
@@ -168,7 +180,23 @@ load(): void
 
 Manually restore cart state from localStorage. When `persist: true`, the client-only plugin also calls this on client mount. Filters out invalid items and coupons using type guards.
 
-### Checkout Hooks
+### Server Sync (when `apiRoutes: true`)
+
+When server API routes are enabled, all mutations automatically sync to the server:
+
+```ts
+cartToken: Ref<string | null>
+```
+
+The cart token from the server API. Set automatically by `cart-token` middleware.
+
+```ts
+isServerSynced: Ref<boolean>
+```
+
+`true` after an initial server fetch completes. The composable fetches server cart state on hydration and uses optimistic local updates + fire-and-forget for mutations.
+
+### Checkout Hooks (Phase 5)
 
 ```ts
 onCheckout(hook: CheckoutHook): void

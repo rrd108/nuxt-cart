@@ -42,9 +42,14 @@ A generic, reusable shopping cart module for Nuxt 4 applications. Zero-config lo
   - `NCartSummary` — subtotal, discount, grand total, checkout CTA
   - `NCartQuantity` — `+` / `-` quantity selector
 
-- 🔌 **Pluggable Architecture** (coming in Phase 4-5)
+- 🔌 **Server API Routes**
+  - 9 REST endpoints for cart CRUD, coupons, and checkout
+  - Token-based cart identification with httpOnly cookies
+  - Database-backed persistence via db0 (SQLite, MySQL, PostgreSQL)
+  - Automatic client-server sync with optimistic local updates
+
+- 🔌 **Pluggable Architecture** (Phase 5)
   - Hook-based payment gateway integration
-  - Server API routes with database support
 
 ## Installation
 
@@ -69,6 +74,11 @@ export default defineNuxtConfig({
     storageKey: 'my-cart',
     currency: 'USD',
     maxQuantity: 99,
+    apiRoutes: true,        // Enable REST API + DB persistence
+    connector: {            // Optional (default: SQLite)
+      name: 'sqlite',
+      options: { path: './data/cart.sqlite3' }
+    }
   },
 })
 ```
@@ -100,6 +110,7 @@ Default settings:
 - Currency: `USD`
 - Coupons disabled
 - API routes disabled
+- Database: SQLite (when `apiRoutes: true`, auto-created at `./data/cart.sqlite3`)
 
 ## Usage
 
@@ -202,6 +213,24 @@ cart.isEmpty            // boolean
 cart.isHydrated         // true after localStorage restore
 ```
 
+### With server API routes
+
+When `apiRoutes: true`, all mutations sync to the server, and the cart is restored from the server on hydration:
+
+```typescript
+const cart = useCart()
+
+// Token is auto-managed via httpOnly cookie
+cart.addItem({ productId: 'p1', name: 'Product', price: 100 })
+// → optimistic local update + POST /api/cart/items
+
+// Server status
+cart.isServerSynced // true after successful server sync
+cart.cartToken      // cart token from cookie
+```
+
+The REST API uses a `db0` database with auto-migration on first run.
+
 ## API
 
 ### `useCart()` composable
@@ -215,6 +244,8 @@ cart.isHydrated         // true after localStorage restore
 | `itemCount` | `ComputedRef<number>` | Total number of items (sum of quantities) |
 | `isEmpty` | `ComputedRef<boolean>` | Whether the cart has any items |
 | `isHydrated` | `Ref<boolean>` | `true` after localStorage data is loaded |
+| `cartToken` | `Ref<string \| null>` | Server cart token (when `apiRoutes: true`) |
+| `isServerSynced` | `Ref<boolean>` | `true` after server sync completes |
 | `addItem(input)` | `() => void` | Add item (merges by `productId`, increments quantity) |
 | `removeItem(productId)` | `(id: string) => void` | Remove all of a product line |
 | `updateQuantity(productId, qty)` | `(id: string, qty: number) => void` | Set exact quantity (removes if 0) |
@@ -249,14 +280,15 @@ If an item with the same `productId` already exists, its quantity is incremented
 | `currency` | `string` | `'USD'` | Currency format |
 | `maxQuantity` | `number` | `99` | Maximum quantity per item |
 | `coupons` | `boolean` | `false` | Enable coupon support |
-| `apiRoutes` | `boolean` | `false` | Enable server API routes (Phase 4) |
+| `apiRoutes` | `boolean` | `false` | Enable server API routes + DB persistence |
+| `connector` | `DatabaseConfig` | `{ name: 'sqlite', options: { path: './data/cart.sqlite3' } }` | Database connector config (db0) |
 
 ## Types
 
 Import types from the module:
 
 ```typescript
-import type { ModuleOptions, CartItem, CartState, Coupon, CheckoutHook, ValidateCouponHook } from 'nuxt-cart'
+import type { ModuleOptions, CartItem, CartState, Coupon, CheckoutHook, ValidateCouponHook, DatabaseConfig, DatabaseType } from 'nuxt-cart'
 ```
 
 ## Persistence Behavior
@@ -271,6 +303,14 @@ On the server, no localStorage access occurs and `isHydrated` stays `false`.
 Set `persist: false` to disable automatic hydration and auto-save. Manual `cart.persist()` / `cart.load()` remain available.
 
 Corrupt data is silently discarded; invalid items and coupons are filtered out during hydration.
+
+### Server DB Persistence (when `apiRoutes: true`)
+
+In addition to localStorage, the cart state is persisted to a database via `db0`:
+- Cart created via `POST /api/cart` returns a token (stored in httpOnly cookie)
+- All mutations sync to the server (optimistic local + fire-and-forget)
+- On hydration, fetches server cart state as the source of truth
+- Auto-migration creates tables on first run
 
 ## Agent Skill
 
@@ -291,18 +331,40 @@ nuxt-cart/
 │   └── runtime/
 │       ├── plugin.ts              # Hydration + auto-persist
 │       ├── composables/
-│       │   └── useCart.ts         # Pinia store + composable
-│       └── components/            # Registered when @nuxt/ui is in modules
-│           ├── NCartDrawer.vue
-│           ├── NCartItem.vue
-│           ├── NCartSummary.vue
-│           └── NCartQuantity.vue
+│       │   └── useCart.ts         # Pinia store + composable with server sync
+│       ├── components/            # Registered when @nuxt/ui is in modules
+│       │   ├── NCartDrawer.vue
+│       │   ├── NCartItem.vue
+│       │   ├── NCartSummary.vue
+│       │   └── NCartQuantity.vue
+│       └── server/                # REST API + DB (when apiRoutes: true)
+│           ├── api/cart/
+│           │   ├── index.get.ts
+│           │   ├── index.post.ts
+│           │   ├── index.delete.ts
+│           │   ├── items.post.ts
+│           │   ├── items/[itemId].patch.ts
+│           │   ├── items/[itemId].delete.ts
+│           │   ├── coupon.post.ts
+│           │   ├── coupon.delete.ts
+│           │   └── checkout.post.ts
+│           ├── composables/useCartDb.ts
+│           ├── middleware/cart-token.ts
+│           ├── plugins/auto-migrate.ts
+│           └── utils/
+│               ├── db.ts
+│               ├── migrate.ts
+│               ├── create-carts-table.ts
+│               ├── cart.ts
+│               └── build-time.ts
 ├── playground/                    # Development app
 │   ├── nuxt.config.ts
 │   └── app.vue
 ├── test/
-│   └── composables/
-│       └── useCart.spec.ts        # 49 unit tests
+│   ├── composables/
+│   │   └── useCart.spec.ts        # 49 unit tests
+│   └── server/
+│       └── api.spec.ts            # Server API tests
 ├── docs/                          # VitePress documentation
 ├── package.json
 ├── build.config.ts
@@ -342,7 +404,7 @@ pnpm docs:dev
 | **1 (MVP)** | `useCart()` + Pinia store + localStorage + types + plugin | ✅ Done |
 | **2 (Coupons)** | `applyCoupon`, `removeCoupon`, `discountedTotal`, validation hooks | ✅ Done |
 | **3 (Components)** | `NCartDrawer`, `NCartItem`, `NCartSummary`, `NCartQuantity` | ✅ Done |
-| **4 (Server)** | REST API + DB + token middleware + checkout | 🔜 Next |
+| **4 (Server)** | REST API + DB + token middleware + checkout | ✅ Done |
 | **5 (Polish)** | `onCheckout`/`checkout` hooks, CI, publish | 🔜 Planned |
 
 ## License

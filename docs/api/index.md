@@ -52,19 +52,36 @@ Four ready-to-use Vue components built on `@nuxt/ui` v4. Auto-imported when `@nu
 
 These are set via the `nuxtCart` key in `nuxt.config.ts`. See the [Configuration guide](/user-guide/configuration) for details.
 
-## Server API (Coming in Phase 4)
+## Server API
 
-When `apiRoutes: true` is configured, the module registers:
+When `apiRoutes: true` is configured, the module registers 9 REST endpoints backed by a `db0` database:
 
-| Method | Route | Description |
-|--------|-------|-------------|
-| `GET` | `/api/cart?token=` | Fetch cart by token |
-| `POST` | `/api/cart` | Create new cart |
-| `POST` | `/api/cart/items` | Add item to cart |
-| `PATCH` | `/api/cart/items/:itemId` | Update quantity |
-| `DELETE` | `/api/cart/items/:itemId` | Remove item |
-| `POST` | `/api/cart/checkout` | Freeze cart, return order reference |
+| Method | Route | Description | Token Required |
+|--------|-------|-------------|:---:|
+| `POST` | `/api/cart` | Create new cart, return `{ token }` | No |
+| `GET` | `/api/cart` | Fetch cart by token (from cookie) | Yes |
+| `DELETE` | `/api/cart` | Clear all items from cart | Yes |
+| `POST` | `/api/cart/items` | Add item to cart | Yes |
+| `PATCH` | `/api/cart/items/:itemId` | Update quantity | Yes |
+| `DELETE` | `/api/cart/items/:itemId` | Remove item | Yes |
+| `POST` | `/api/cart/coupon` | Apply coupon `{ code }` | Yes |
+| `DELETE` | `/api/cart/coupon` | Remove coupon | Yes |
+| `POST` | `/api/cart/checkout` | Freeze cart, return `{ orderReference }` | Yes |
 
-- [Public Types](./types) — Full type documentation
-- [Composables](/user-guide/composables) — `useCart()` API reference
+Cart token is stored in an httpOnly cookie by the `cart-token` middleware.
+
+### Database
+
+Uses **db0** (UnJS database abstraction) with three configurable connectors:
+
+| Connector | Package | Default |
+|-----------|---------|---------|
+| SQLite | `better-sqlite3` | ✅ (default, `./data/cart.sqlite3`) |
+| MySQL | `mysql2` | opt-in |
+| PostgreSQL | `pg` | opt-in |
+
+Auto-migration creates tables on first run.
+
+- [Public Types](./types) — Full type documentation including database types
+- [Composables](/user-guide/composables) — `useCart()` API reference including server sync
 - [Components](/user-guide/components) — Cart UI components

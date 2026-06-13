@@ -98,7 +98,7 @@ nuxt-cart/
     ├── composables/
     │   └── useCart.spec.ts       ✅ (49 tests)
     └── server/
-        └── api.test.ts           ⬜ (Phase 4)
+        └── api.spec.ts           ✅ (Phase 4)
 ```
 
 ---
@@ -201,8 +201,8 @@ Implemented (✅ Phase 4) — server API routes block:
       addServerHandler({ route: '/api/cart/checkout', method: 'post', handler: `${serverDir}/api/cart/checkout.post` })
       addServerHandler({ middleware: true, handler: `${serverDir}/middleware/cart-token` })
       addServerPlugin(resolver.resolve('./runtime/server/plugins/auto-migrate'))
-      nitroxConfig.experimental = nitroxConfig.experimental || {}
-      nitroxConfig.experimental.database = true
+      nuxt.options.nitro.experimental = nuxt.options.nitro.experimental || {}
+      nuxt.options.nitro.experimental.database = true
     }
 ```
 

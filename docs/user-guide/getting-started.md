@@ -164,12 +164,40 @@ console.log(cart.discountedTotal.value)
 </script>
 ```
 
+## Using Server API Routes
+
+Enable database-backed cart persistence with `apiRoutes: true`:
+
+```ts
+// nuxt.config.ts
+export default defineNuxtConfig({
+  modules: ['nuxt-cart'],
+  nuxtCart: {
+    apiRoutes: true,
+  },
+})
+```
+
+This registers 9 REST endpoints, token-based cart identification via httpOnly cookies, and auto-migration. The `useCart()` composable automatically syncs all mutations to the server — no additional code needed.
+
+```vue
+<script setup lang="ts">
+const cart = useCart()
+
+// Works the same — but now synced to the server
+cart.addItem({ productId: 'p1', name: 'Product', price: 100 })
+
+// Server sync status
+console.log(cart.isServerSynced.value) // true after sync
+</script>
+```
+
 ## Next Steps
 
 Now that you have a working cart, you might want to:
 
 - **[Use the Components](./components.md)** — Ready-to-use cart UI
-- **[Configure the Module](./configuration.md)** — Customize storage key, max quantity, currency, coupons
+- **[Configure the Module](./configuration.md)** — Customize storage key, max quantity, currency, coupons, database
 - **[Explore the Composables API](./composables.md)** — Full `useCart()` reference
 - **[Understand Persistence](./persistence.md)** — How hydration and type-guard validation work
 - **[Try the Examples](/examples/basic-setup)** — Complete implementation patterns

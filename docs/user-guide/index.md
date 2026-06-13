@@ -11,7 +11,8 @@ Nuxt Cart is a standalone, backend-agnostic shopping cart module that provides:
 - **Pinia-Powered** — Reactive state management with devtools support
 - **Coupon Support** — Built-in coupon logic with validation hooks
 - **Nuxt UI Components** — Optional auto-imported drawer, item, summary, and quantity components (requires `@nuxt/ui` in modules)
-- **Payment Gateways** — Hook-based checkout system for any payment provider (coming in Phase 4)
+- **Server API Routes** — REST endpoints for cart CRUD, coupons, and checkout with database persistence
+- **Payment Gateways** — Hook-based checkout system for any payment provider (coming in Phase 5)
 
 ## Why Choose Nuxt Cart?
 

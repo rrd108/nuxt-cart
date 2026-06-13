@@ -13,18 +13,26 @@ nuxt-cart/
 │   └── runtime/
 │       ├── plugin.ts              # Client-only plugin — hydration, auto-save
 │       ├── composables/
-│       │   └── useCart.ts         # Pinia store + useCart() wrapper (items + coupons)
-│       └── components/            # Registered only when @nuxt/ui is present
-│           ├── NCartDrawer.vue
-│           ├── NCartItem.vue
-│           ├── NCartSummary.vue
-│           └── NCartQuantity.vue
+│       │   └── useCart.ts         # Pinia store + useCart() wrapper (items + coupons + server sync)
+│       ├── components/            # Registered only when @nuxt/ui is present
+│       │   ├── NCartDrawer.vue
+│       │   ├── NCartItem.vue
+│       │   ├── NCartSummary.vue
+│       │   └── NCartQuantity.vue
+│       └── server/                # REST API + DB (when apiRoutes: true)
+│           ├── api/cart/          # 9 endpoints
+│           ├── composables/useCartDb.ts
+│           ├── middleware/cart-token.ts
+│           ├── plugins/auto-migrate.ts
+│           └── utils/
 ├── playground/                    # Development app for manual testing
 │   ├── nuxt.config.ts
 │   └── app.vue
 ├── test/
-│   └── composables/
-│       └── useCart.spec.ts        # 49 unit tests
+│   ├── composables/
+│   │   └── useCart.spec.ts        # 49 unit tests
+│   └── server/
+│       └── api.spec.ts            # Server API tests
 ├── docs/                          # VitePress documentation
 ├── package.json
 ├── build.config.ts

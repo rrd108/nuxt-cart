@@ -119,17 +119,31 @@ useCart()
 - `NCartDrawer`, `NCartItem`, `NCartSummary`, `NCartQuantity`
 - Built on `@nuxt/ui` v4, auto-imported with `N` prefix when `@nuxt/ui` is in modules
 
-### Phase 4 — Server API
+### Phase 4 — Server API (Done)
+
+9 REST endpoints backed by `db0` database with token-based cart identification:
+
 ```
 Client                           Server
   │                                │
-  ├── addItem() ──────────────> POST /api/cart/items
+  ├── addItem() ──────────────> POST   /api/cart/items
   ├── removeItem() ───────────> DELETE /api/cart/items/:id
-  ├── updateQuantity() ───────> PATCH /api/cart/items/:id
-  ├── checkout() ─────────────> POST /api/cart/checkout
+  ├── updateQuantity() ───────> PATCH  /api/cart/items/:id
+  ├── applyCoupon() ──────────> POST   /api/cart/coupon
+  ├── removeCoupon() ─────────> DELETE /api/cart/coupon
+  ├── checkout() ─────────────> POST   /api/cart/checkout
+  ├── clear() ────────────────> DELETE /api/cart
   │                                │
   │                          ┌─────┴─────┐
-  │                          │  Database  │
-  │                          │  (SQLite)  │
+  │                          │   db0 DB  │
+  │                          │ (SQLite / │
+  │                          │  MySQL /  │
+  │                          │PostgreSQL)│
   │                          └───────────┘
 ```
+
+Key implementation details:
+- **`cart-token` middleware** generates an httpOnly cookie on `POST /api/cart` and validates it on all subsequent requests
+- **`useCartDb` server composable** wraps `db0` connections with typed query helpers for carts, items, and coupons
+- **`auto-migrate` plugin** creates tables on first run using a state machine that tracks applied migrations
+- **Client-server sync**: mutations are optimistic (local update first) + fire-and-forget to the server. On hydration, server cart is fetched as source of truth.

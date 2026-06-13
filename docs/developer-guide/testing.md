@@ -148,5 +148,14 @@ describe('feature name', () => {
 })
 ```
 
-For future phases, add test files:
-- `test/server/api.test.ts` (Phase 4)
+### Server API Tests (Phase 4)
+
+Server API tests are in `test/server/api.spec.ts` and cover the 9 REST endpoints:
+
+- Cart creation (`POST /api/cart`)
+- Cart retrieval (`GET /api/cart`)
+- Cart item CRUD (`POST`, `PATCH`, `DELETE /api/cart/items/:itemId`)
+- Coupon apply/remove (`POST`, `DELETE /api/cart/coupon`)
+- Checkout (`POST /api/cart/checkout`)
+
+These tests use a SQLite in-memory database with the Nitro dev server and test the full request-response cycle including token middleware.

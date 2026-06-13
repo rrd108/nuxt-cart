@@ -20,7 +20,8 @@ Default settings:
 | `maxQuantity` | `99` | Maximum quantity per item |
 | `currency` | `'USD'` | Currency for display |
 | `coupons` | `false` | Enable coupon support |
-| `apiRoutes` | `false` | Enable server API routes (Phase 4) |
+| `apiRoutes` | `false` | Enable server API routes + DB persistence |
+| `connector` | `{ name: 'sqlite', options: { path: './data/cart.sqlite3' } }` | Database connector config for db0 |
 
 ## Complete Configuration Options
 
@@ -43,8 +44,14 @@ export default defineNuxtConfig({
     // Coupons
     // coupons: true,
 
-    // Coming in Phase 4
-    // apiRoutes: true,
+    // Server API routes
+    apiRoutes: true,
+
+    // Database connector (optional, SQLite is default)
+    // connector: {
+    //   name: 'postgresql',
+    //   options: { host: 'localhost', port: 5432, database: 'cart', user: 'user', password: 'pass' }
+    // },
   },
 })
 ```
@@ -85,7 +92,26 @@ export default defineNuxtConfig({
 
 - **Type:** `boolean`
 - **Default:** `false`
-- **Description:** Enable server API routes for cart operations. When enabled, creates REST endpoints for cart CRUD, token-based authentication, and checkout. Requires a database. (Planned for Phase 4.)
+- **Description:** Enable server API routes for cart operations. When enabled, registers 9 REST endpoints for cart CRUD, coupon management, and checkout. Uses `db0` database with auto-migration on first run. See the [API Reference](/api/) for endpoint details.
+
+### `connector`
+
+- **Type:** `DatabaseConfig`
+- **Default:** `{ name: 'sqlite', options: { path: './data/cart.sqlite3' } }`
+- **Description:** Database connector configuration for `db0`. Supports SQLite (default, no additional setup), MySQL (`mysql2` package required), and PostgreSQL (`pg` package required). Only used when `apiRoutes: true`.
+
+```ts
+// SQLite (default)
+connector: { name: 'sqlite', options: { path: './data/cart.sqlite3' } }
+
+// MySQL
+connector: { name: 'mysql', options: { host: 'localhost', port: 3306, database: 'cart', user: 'root', password: 'secret' } }
+
+// PostgreSQL
+connector: { name: 'postgresql', options: { host: 'localhost', port: 5432, database: 'cart', user: 'postgres', password: 'secret' } }
+```
+
+The database file for SQLite is auto-created. MySQL and PostgreSQL require the database to exist before running the app.
 
 ## Environment Variables
 

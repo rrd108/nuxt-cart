@@ -74,6 +74,30 @@ interface Coupon {
 
 ## Configuration Types
 
+### DatabaseConfig
+
+Database connector configuration for db0:
+
+```ts
+interface DatabaseConfig {
+  name: DatabaseType
+  options?: {
+    path?: string       // SQLite only
+    host?: string       // MySQL / PostgreSQL
+    port?: number       // MySQL / PostgreSQL
+    user?: string       // MySQL / PostgreSQL
+    password?: string   // MySQL / PostgreSQL
+    database?: string   // MySQL / PostgreSQL
+  }
+}
+```
+
+### DatabaseType
+
+```ts
+type DatabaseType = 'sqlite' | 'mysql' | 'postgresql'
+```
+
 ### ModuleOptions
 
 Configuration interface for `nuxt.config.ts`:
@@ -86,6 +110,7 @@ interface ModuleOptions {
   currency?: string
   coupons?: boolean
   maxQuantity?: number
+  connector?: DatabaseConfig
 }
 ```
 
@@ -93,16 +118,17 @@ interface ModuleOptions {
 |--------|------|---------|-------------|
 | `persist` | `boolean` | `true` | Enable localStorage persistence. |
 | `storageKey` | `string` | `'nuxt-cart'` | localStorage key for persistence. |
-| `apiRoutes` | `boolean` | `false` | Enable server API routes (Phase 4). |
+| `apiRoutes` | `boolean` | `false` | Enable server API routes + DB persistence. |
 | `currency` | `string` | `'USD'` | Currency identifier. |
 | `coupons` | `boolean` | `false` | Enable coupon support (Phase 2). |
 | `maxQuantity` | `number` | `99` | Maximum quantity per item. |
+| `connector` | `DatabaseConfig` | `{ name: 'sqlite', options: { path: './data/cart.sqlite3' } }` | Database connector config for db0. |
 
 ## Hook Types
 
 ### CheckoutHook
 
-Handler type for checkout (Phase 4):
+Handler type for checkout (Phase 5):
 
 ```ts
 interface CheckoutHook {
