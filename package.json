@@ -1,6 +1,6 @@
 {
   "name": "nuxt-cart",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A generic, reusable shopping cart module for Nuxt 4 with localStorage persistence, coupon support, and optional Nuxt UI components",
   "author": "rrd <rrd@webmania.cc>",
   "license": "MIT",
