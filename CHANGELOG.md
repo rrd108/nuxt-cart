@@ -1,5 +1,26 @@
 # Changelog
 
+## v1.1.1
+
+[compare changes](https://github.com/rrd108/nuxt-cart/compare/v1.1.0...v1.1.1)
+
+### 🩹 Fixes
+
+- Release script to use web auth ([e1f7cf1](https://github.com/rrd108/nuxt-cart/commit/e1f7cf1))
+- Move DB deps from optionalDependencies to peerDependencies to avoid auto-install in consumer apps ([9e79d49](https://github.com/rrd108/nuxt-cart/commit/9e79d49))
+
+### 📖 Documentation
+
+- Clarify that DB drivers are optional peer dependencies that must be explicitly installed ([ee73ef1](https://github.com/rrd108/nuxt-cart/commit/ee73ef1))
+
+### 🏡 Chore
+
+- **release:** V1.1.0 ([a95c847](https://github.com/rrd108/nuxt-cart/commit/a95c847))
+
+### ❤️ Contributors
+
+- Rrd108 <rrd@webmania.cc>
+
 ## v1.1.0
 
 [compare changes](https://github.com/rrd108/nuxt-cart/compare/v0.1.0...v1.1.0)
