@@ -28,8 +28,9 @@ export async function getCart(options: ModuleOptions, token: string) {
     SELECT * FROM carts WHERE id = ${token}
   ` as { rows: CartRecord[] }
 
-  if (result.rows.length === 0) return null
-  return parseCart(result.rows[0])
+  const row = result.rows[0]
+  if (!row) return null
+  return parseCart(row)
 }
 
 export async function createCart(options: ModuleOptions, token: string) {

@@ -1,7 +1,7 @@
 import { createError, defineEventHandler, readBody, getRouterParam } from 'h3'
 import { useRuntimeConfig } from '#imports'
-import type { ModuleOptions } from '../../../../types'
-import { updateItemQuantity } from '../../utils/cart'
+import type { ModuleOptions } from '../../../../../types'
+import { updateItemQuantity } from '../../../utils/cart'
 
 export default defineEventHandler(async (event) => {
   const { nuxtCart } = useRuntimeConfig()

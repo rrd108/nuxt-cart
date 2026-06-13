@@ -8,6 +8,6 @@ export const isBuildTime = (): boolean => {
   const buildIndicators = ['prerender', 'build', 'generate']
   return buildIndicators.some(indicator =>
     process.argv.join(' ').toLowerCase().includes(indicator)
-    || process.env.npm_lifecycle_event?.includes(indicator)
+    || process.env.npm_lifecycle_event?.includes(indicator),
   )
 }

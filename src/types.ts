@@ -45,7 +45,7 @@ export interface CartState {
 }
 
 export interface CheckoutHook {
-  (cart: CartState): Promise<{ redirectUrl?: string; error?: string }>
+  (cart: CartState): Promise<{ redirectUrl?: string, error?: string }>
 }
 
 export interface ValidateCouponHook {

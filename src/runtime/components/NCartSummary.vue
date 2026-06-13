@@ -13,7 +13,7 @@
         <span class="tabular-nums">-{{ formatPrice(discountAmount) }}</span>
       </div>
     </div>
-    <hr class="border-border" />
+    <hr class="border-border">
     <div class="flex justify-between text-base font-semibold text-default">
       <span>Total</span>
       <span class="tabular-nums">{{ formatPrice(cart.discountedTotal.value) }}</span>

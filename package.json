@@ -1,6 +1,6 @@
 {
   "name": "nuxt-cart",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "description": "A generic, reusable shopping cart module for Nuxt 4 with localStorage persistence, coupon support, and optional Nuxt UI components",
   "author": "rrd <rrd@webmania.cc>",
   "license": "MIT",
@@ -46,11 +46,11 @@
     "dev": "nuxi dev playground",
     "dev:build": "nuxi build playground",
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
+    "lint": "oxlint --deny-warnings",
+    "lint:fix": "oxlint --fix --deny-warnings",
     "test": "vitest run",
     "test:watch": "vitest watch",
-    "test:types": "vue-tsc --noEmit",
+    "test:types": "cd playground && vue-tsc --noEmit",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",
@@ -76,6 +76,7 @@
     "changelogen": "^0.6.2",
     "dotenv-cli": "^11.0.0",
     "nuxt": "^4.0.0",
+    "oxlint": "^1.69.0",
     "pinia": "^3.0.0",
     "typescript": "~5.8.3",
     "vitepress": "^1.6.4",
@@ -89,7 +90,9 @@
     "pinia": "^3.0.0"
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["better-sqlite3"]
+    "onlyBuiltDependencies": [
+      "better-sqlite3"
+    ]
   },
   "peerDependenciesMeta": {
     "@nuxt/ui": {

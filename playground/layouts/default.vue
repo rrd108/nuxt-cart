@@ -1,4 +1,6 @@
 <script setup lang="ts">
+defineOptions({ name: 'PlaygroundDefault' })
+
 const cart = useCart()
 const drawerOpen = ref(false)
 const router = useRouter()
@@ -9,7 +11,10 @@ const router = useRouter()
     <div class="min-h-screen bg-background">
       <header class="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-sm">
         <div class="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-          <NuxtLink to="/" class="text-lg font-bold hover:text-primary">
+          <NuxtLink
+            to="/"
+            class="text-lg font-bold hover:text-primary"
+          >
             Nuxt Cart
           </NuxtLink>
           <div class="flex items-center gap-2">

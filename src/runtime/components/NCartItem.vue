@@ -8,7 +8,7 @@
         :src="item.image"
         :alt="item.name"
         class="size-full object-cover"
-      />
+      >
     </div>
     <div class="flex-1 min-w-0">
       <p class="text-sm font-medium text-default truncate">
@@ -41,12 +41,12 @@
 <script setup lang="ts">
 import type { CartItem } from '../../types'
 
-const props = defineProps<{
+defineProps<{
   item: CartItem
 }>()
 
 defineEmits<{
-  remove: []
+  'remove': []
   'update:quantity': [value: number]
 }>()
 

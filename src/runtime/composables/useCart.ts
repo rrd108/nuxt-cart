@@ -1,4 +1,4 @@
-import { ref, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { defineStore, storeToRefs } from 'pinia'
 import { useRuntimeConfig } from '#app'
 import { destr } from 'destr'
@@ -73,7 +73,7 @@ const useCartStore = defineStore('nuxt-cart', () => {
     checkoutHooks.push(hook)
   }
 
-  async function checkout(): Promise<{ redirectUrl?: string; error?: string }> {
+  async function checkout(): Promise<{ redirectUrl?: string, error?: string }> {
     const state: CartState = {
       items: [...items.value],
       coupon: coupon.value ? { ...coupon.value } : null,
@@ -90,7 +90,7 @@ const useCartStore = defineStore('nuxt-cart', () => {
   async function applyCoupon(code: string): Promise<void> {
     if (!config.coupons) return
     if (validateCouponHooks.length === 0) return
-    const result = await validateCouponHooks[0](code)
+    const result = await validateCouponHooks[0]?.(code)
     if (result) {
       coupon.value = result
     }
@@ -115,6 +115,7 @@ const useCartStore = defineStore('nuxt-cart', () => {
       localStorage.setItem(storageKey, JSON.stringify(state))
     }
     catch {
+      // ignore
     }
   }
 
@@ -133,6 +134,7 @@ const useCartStore = defineStore('nuxt-cart', () => {
       isHydrated.value = true
     }
     catch {
+      // ignore
     }
   }
 
@@ -198,6 +200,7 @@ function saveToken(storageKey: string, token: string): void {
     localStorage.setItem(`${storageKey}-token`, token)
   }
   catch {
+    // ignore
   }
 }
 
@@ -206,6 +209,7 @@ function removeToken(storageKey: string): void {
     localStorage.removeItem(`${storageKey}-token`)
   }
   catch {
+    // ignore
   }
 }
 

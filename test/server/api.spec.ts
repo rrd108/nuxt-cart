@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import Database from 'better-sqlite3'
 
 interface QueryResult {
-  rows: any[]
+  rows: Record<string, unknown>[]
   columns: string[]
 }
 
@@ -33,14 +33,19 @@ function uniqueToken(): string {
   return `token-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
 }
 
-async function query(db: Database.Database, sql: string, ...params: any[]): Promise<QueryResult> {
+async function query(db: Database.Database, sql: string, ...params: unknown[]): Promise<QueryResult> {
   const stmt = db.prepare(sql)
   if (sql.trim().toUpperCase().startsWith('SELECT')) {
     const rows = params.length > 0 ? stmt.all(...params) : stmt.all()
     return { rows, columns: Object.keys(rows[0] || {}) }
   }
   else {
-    params.length > 0 ? stmt.run(...params) : stmt.run()
+    if (params.length > 0) {
+      stmt.run(...params)
+    }
+    else {
+      stmt.run()
+    }
     return { rows: [], columns: [] }
   }
 }
@@ -70,7 +75,7 @@ async function addItem(db: Database.Database, token: string, item: any) {
   if (!cart) throw new Error('Cart not found')
 
   const items = cart.items
-  const existing = items.find((i: any) => i.productId === item.productId)
+  const existing = items.find((i: Record<string, unknown>) => i.productId === item.productId)
   if (existing) {
     existing.quantity = Math.min(existing.quantity + (item.quantity || 1), 99)
   }
@@ -90,10 +95,10 @@ async function updateQty(db: Database.Database, token: string, productId: string
 
   let items = cart.items
   if (quantity <= 0) {
-    items = items.filter((i: any) => i.productId !== productId)
+    items = items.filter((i: Record<string, unknown>) => i.productId !== productId)
   }
   else {
-    const item = items.find((i: any) => i.productId === productId)
+    const item = items.find((i: Record<string, unknown>) => i.productId === productId)
     if (item) item.quantity = Math.min(quantity, 99)
   }
 
@@ -107,7 +112,7 @@ async function removeItem(db: Database.Database, token: string, productId: strin
   const cart = await getCart(db, token)
   if (!cart) throw new Error('Cart not found')
 
-  const items = cart.items.filter((i: any) => i.productId !== productId)
+  const items = cart.items.filter((i: Record<string, unknown>) => i.productId !== productId)
   const now = new Date().toISOString()
   await query(db, 'UPDATE carts SET items = ?, updated_at = ? WHERE id = ?',
     JSON.stringify(items), now, token)
@@ -129,7 +134,7 @@ async function removeCoupon(db: Database.Database, token: string) {
   if (!cart) throw new Error('Cart not found')
 
   const now = new Date().toISOString()
-  await query(db, "UPDATE carts SET coupon = NULL, updated_at = ? WHERE id = ?", now, token)
+  await query(db, 'UPDATE carts SET coupon = NULL, updated_at = ? WHERE id = ?', now, token)
   return { ...cart, coupon: null, updatedAt: now }
 }
 
@@ -138,7 +143,7 @@ async function clearCart(db: Database.Database, token: string) {
   if (!cart) throw new Error('Cart not found')
 
   const now = new Date().toISOString()
-  await query(db, "UPDATE carts SET items = '[]', coupon = NULL, updated_at = ? WHERE id = ?", now, token)
+  await query(db, 'UPDATE carts SET items = \'[]\', coupon = NULL, updated_at = ? WHERE id = ?', now, token)
   return { ...cart, items: [], coupon: null, updatedAt: now }
 }
 

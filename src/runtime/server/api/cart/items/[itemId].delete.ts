@@ -1,7 +1,7 @@
 import { createError, defineEventHandler, getRouterParam } from 'h3'
 import { useRuntimeConfig } from '#imports'
-import type { ModuleOptions } from '../../../../types'
-import { removeItemFromCart } from '../../utils/cart'
+import type { ModuleOptions } from '../../../../../types'
+import { removeItemFromCart } from '../../../utils/cart'
 
 export default defineEventHandler(async (event) => {
   const { nuxtCart } = useRuntimeConfig()

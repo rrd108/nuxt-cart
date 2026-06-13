@@ -14,7 +14,7 @@
       size="xs"
       color="neutral"
       variant="ghost"
-      :disabled="modelValue >= max"
+      :disabled="max !== undefined && modelValue >= max"
       @click="increment"
     />
   </div>

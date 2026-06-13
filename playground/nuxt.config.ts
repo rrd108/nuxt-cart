@@ -4,6 +4,8 @@ export default defineNuxtConfig({
     '@nuxt/ui',
   ],
 
+  devtools: { enabled: true },
+
   nuxtCart: {
     persist: true,
     apiRoutes: true,
@@ -14,6 +16,4 @@ export default defineNuxtConfig({
       options: { path: './.data/cart.sqlite3' },
     },
   },
-
-  devtools: { enabled: true },
 })

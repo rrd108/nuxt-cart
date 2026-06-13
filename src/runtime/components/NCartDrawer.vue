@@ -7,14 +7,27 @@
   >
     <template #body>
       <div class="flex h-full flex-col">
-        <div v-if="cart.isEmpty.value" class="flex flex-1 flex-col items-center justify-center text-center">
+        <div
+          v-if="cart.isEmpty.value"
+          class="flex flex-1 flex-col items-center justify-center text-center"
+        >
           <div class="mb-4 rounded-full bg-muted p-4">
-            <UIcon name="i-lucide-shopping-cart" class="size-8 text-muted" />
+            <UIcon
+              name="i-lucide-shopping-cart"
+              class="size-8 text-muted"
+            />
           </div>
-          <p class="text-sm font-medium text-default">Your cart is empty</p>
-          <p class="mt-1 text-sm text-muted">Add items to get started</p>
+          <p class="text-sm font-medium text-default">
+            Your cart is empty
+          </p>
+          <p class="mt-1 text-sm text-muted">
+            Add items to get started
+          </p>
         </div>
-        <div v-else class="flex-1 overflow-auto divide-y divide-border">
+        <div
+          v-else
+          class="flex-1 overflow-auto divide-y divide-border"
+        >
           <NCartItem
             v-for="item in cart.items.value"
             :key="item.productId"
@@ -24,7 +37,10 @@
           />
         </div>
         <div class="border-t border-border pt-4">
-          <div v-if="showCouponInput" class="mb-4">
+          <div
+            v-if="showCouponInput"
+            class="mb-4"
+          >
             <UInput
               v-model="couponCode"
               placeholder="Coupon code"
@@ -42,7 +58,12 @@
                 </UButton>
               </template>
             </UInput>
-            <p v-if="couponError" class="mt-1 text-xs text-error">{{ couponError }}</p>
+            <p
+              v-if="couponError"
+              class="mt-1 text-xs text-error"
+            >
+              {{ couponError }}
+            </p>
           </div>
           <NCartSummary @checkout="$emit('checkout')" />
         </div>

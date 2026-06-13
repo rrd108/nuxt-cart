@@ -37,12 +37,12 @@ export default defineNuxtModule<ModuleOptions>({
     runtimeConfigOptions.connector = configuredConnector || defaultOptions.connector
 
     nuxt.options.runtimeConfig.public.nuxtCart = {
-      persist: runtimeConfigOptions.persist,
-      storageKey: runtimeConfigOptions.storageKey,
-      apiRoutes: runtimeConfigOptions.apiRoutes,
-      currency: runtimeConfigOptions.currency,
-      coupons: runtimeConfigOptions.coupons,
-      maxQuantity: runtimeConfigOptions.maxQuantity,
+      persist: runtimeConfigOptions.persist ?? true,
+      storageKey: runtimeConfigOptions.storageKey ?? 'nuxt-cart',
+      apiRoutes: runtimeConfigOptions.apiRoutes ?? false,
+      currency: runtimeConfigOptions.currency ?? 'USD',
+      coupons: runtimeConfigOptions.coupons ?? false,
+      maxQuantity: runtimeConfigOptions.maxQuantity ?? 99,
     }
 
     nuxt.options.runtimeConfig.nuxtCart = {
@@ -56,13 +56,13 @@ export default defineNuxtModule<ModuleOptions>({
 
     addImportsDir(resolver.resolve('./runtime/composables'))
 
-    if (!hasNuxtModule('@nuxt/ui')) return
-
-    addComponentsDir({
-      path: resolver.resolve('./runtime/components'),
-      pathPrefix: false,
-      prefix: 'N',
-    })
+    if (hasNuxtModule('@nuxt/ui')) {
+      addComponentsDir({
+        path: resolver.resolve('./runtime/components'),
+        pathPrefix: false,
+        prefix: 'N',
+      })
+    }
 
     if (runtimeConfigOptions.apiRoutes) {
       const serverDir = resolver.resolve('./runtime/server')

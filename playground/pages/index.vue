@@ -1,4 +1,6 @@
 <script setup lang="ts">
+defineOptions({ name: 'PlaygroundIndex' })
+
 const cart = useCart()
 const toast = useToast()
 
@@ -32,7 +34,7 @@ const categories = [
 ]
 
 cart.onValidateCoupon(async (code) => {
-  const coupons: Record<string, { discount: number; type: 'percentage' | 'fixed' }> = {
+  const coupons: Record<string, { discount: number, type: 'percentage' | 'fixed' }> = {
     SAVE10: { discount: 10, type: 'percentage' },
     FLAT5: { discount: 5, type: 'fixed' },
     WELCOME20: { discount: 20, type: 'percentage' },
@@ -41,7 +43,7 @@ cart.onValidateCoupon(async (code) => {
   return c ? { code: code.toUpperCase(), ...c } : null
 })
 
-function addToCart(product: { productId: string; name: string; price: number; image?: string }) {
+function addToCart(product: { productId: string, name: string, price: number, image?: string }) {
   cart.addItem(product)
   toast.add({
     title: 'Added to cart',
@@ -63,7 +65,11 @@ function addToCart(product: { productId: string; name: string; price: number; im
       </p>
     </section>
 
-    <section v-for="cat in categories" :key="cat.name" class="space-y-4">
+    <section
+      v-for="cat in categories"
+      :key="cat.name"
+      class="space-y-4"
+    >
       <div class="flex items-center gap-2">
         <span :class="[cat.icon, 'h-5 w-5 text-primary']" />
         <h2 class="text-xl font-semibold">
@@ -82,7 +88,7 @@ function addToCart(product: { productId: string; name: string; price: number; im
             :alt="product.name"
             class="h-48 w-full object-cover"
             loading="lazy"
-          />
+          >
           <div class="space-y-2 p-4">
             <h3 class="font-semibold">
               {{ product.name }}

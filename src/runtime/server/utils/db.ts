@@ -38,6 +38,7 @@ export const getConnector = async (name: string) => {
         + '- For sqlite: pnpm add better-sqlite3\n'
         + '- For mysql: pnpm add mysql2\n'
         + '- For postgresql: pnpm add pg',
+        { cause: error },
       )
     }
     throw error

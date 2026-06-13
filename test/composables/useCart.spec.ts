@@ -2,6 +2,8 @@ import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { useRuntimeConfig } from '#app'
 
+import { useCart } from '../../src/runtime/composables/useCart'
+
 vi.mock('#app', () => ({
   useRuntimeConfig: vi.fn(() => ({
     public: {
@@ -16,8 +18,6 @@ vi.mock('#app', () => ({
     },
   })),
 }))
-
-import { useCart } from '../../src/runtime/composables/useCart'
 
 describe('useCart', () => {
   beforeEach(() => {
@@ -282,7 +282,7 @@ describe('useCart', () => {
       vi.stubGlobal('localStorage', {
         getItem: (key: string) => storage[key] ?? null,
         setItem: (key: string, value: string) => { storage[key] = value },
-        removeItem: (key: string) => { delete storage[key] },
+        removeItem: (key: string) => { Reflect.deleteProperty(storage, key) },
       })
     })
 
@@ -559,11 +559,11 @@ describe('useCart', () => {
     })
 
     it('persists coupon to localStorage', async () => {
-      let storage: Record<string, string> = {}
+      const storage: Record<string, string> = {}
       vi.stubGlobal('localStorage', {
         getItem: (key: string) => storage[key] ?? null,
         setItem: (key: string, value: string) => { storage[key] = value },
-        removeItem: (key: string) => { delete storage[key] },
+        removeItem: (key: string) => { Reflect.deleteProperty(storage, key) },
       })
 
       const cart = useCart()
@@ -587,11 +587,11 @@ describe('useCart', () => {
     })
 
     it('loads coupon from localStorage', () => {
-      let storage: Record<string, string> = {}
+      const storage: Record<string, string> = {}
       vi.stubGlobal('localStorage', {
         getItem: (key: string) => storage[key] ?? null,
         setItem: (key: string, value: string) => { storage[key] = value },
-        removeItem: (key: string) => { delete storage[key] },
+        removeItem: (key: string) => { Reflect.deleteProperty(storage, key) },
       })
 
       storage['nuxt-cart-test'] = JSON.stringify({
@@ -613,11 +613,11 @@ describe('useCart', () => {
     })
 
     it('ignores invalid coupon shape on load', () => {
-      let storage: Record<string, string> = {}
+      const storage: Record<string, string> = {}
       vi.stubGlobal('localStorage', {
         getItem: (key: string) => storage[key] ?? null,
         setItem: (key: string, value: string) => { storage[key] = value },
-        removeItem: (key: string) => { delete storage[key] },
+        removeItem: (key: string) => { Reflect.deleteProperty(storage, key) },
       })
 
       storage['nuxt-cart-test'] = JSON.stringify({

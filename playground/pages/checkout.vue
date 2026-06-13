@@ -1,4 +1,5 @@
 <script setup lang="ts">
+defineOptions({ name: 'PlaygroundCheckout' })
 definePageMeta({
   title: 'Checkout',
 })
@@ -51,13 +52,19 @@ async function placeOrder() {
               :src="item.image"
               :alt="item.name"
               class="h-12 w-12 rounded-lg object-cover"
-            />
+            >
             <div>
-              <p class="font-medium">{{ item.name }}</p>
-              <p class="text-sm text-muted">Qty: {{ item.quantity }}</p>
+              <p class="font-medium">
+                {{ item.name }}
+              </p>
+              <p class="text-sm text-muted">
+                Qty: {{ item.quantity }}
+              </p>
             </div>
           </div>
-          <p class="font-medium">${{ (item.price * item.quantity).toFixed(2) }}</p>
+          <p class="font-medium">
+            ${{ (item.price * item.quantity).toFixed(2) }}
+          </p>
         </div>
       </div>
 
@@ -68,7 +75,10 @@ async function placeOrder() {
           <span>Subtotal</span>
           <span>${{ cart.totalAmount.value.toFixed(2) }}</span>
         </div>
-        <div v-if="cart.coupon.value" class="flex justify-between text-green-600">
+        <div
+          v-if="cart.coupon.value"
+          class="flex justify-between text-green-600"
+        >
           <span>Discount ({{ cart.coupon.value.code }})</span>
           <span>- ${{ (cart.totalAmount.value - cart.discountedTotal.value).toFixed(2) }}</span>
         </div>
@@ -80,7 +90,10 @@ async function placeOrder() {
     </UCard>
 
     <div class="flex gap-3">
-      <UButton variant="soft" @click="router.back()">
+      <UButton
+        variant="soft"
+        @click="router.back()"
+      >
         Back
       </UButton>
       <UButton
