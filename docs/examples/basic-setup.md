@@ -14,7 +14,7 @@ npm install nuxt-cart @pinia/nuxt
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-  modules: ['@pinia/nuxt', 'nuxt-cart']
+  modules: ['nuxt-cart'],
   // That's it! No configuration needed
 })
 ```
@@ -239,7 +239,14 @@ function decrement(productId: string, currentQty: number) {
 
 ## Using Cart Components
 
-The module provides ready-to-use components when `@nuxt/ui` v4 is installed:
+The module provides ready-to-use components when `@nuxt/ui` v4 is installed **and listed in modules**:
+
+```ts
+// nuxt.config.ts
+export default defineNuxtConfig({
+  modules: ['nuxt-cart', '@nuxt/ui'],
+})
+```
 
 ```vue
 <script setup lang="ts">
@@ -278,7 +285,7 @@ Enable coupon support in your config:
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-  modules: ['@pinia/nuxt', 'nuxt-cart'],
+  modules: ['nuxt-cart'],
   nuxtCart: {
     coupons: true,
   },

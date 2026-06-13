@@ -160,13 +160,13 @@ await cart.applyCoupon('SUMMER20')
 persist(): void
 ```
 
-Manually save the current cart state (items + coupon) to localStorage. Called automatically by the plugin on every change.
+Manually save the current cart state (items + coupon) to localStorage. When `persist: true` (default), the client-only plugin also calls this automatically on every change.
 
 ```ts
 load(): void
 ```
 
-Manually restore cart state from localStorage. Called automatically by the plugin on app mount. Filters out invalid items and coupons using type guards.
+Manually restore cart state from localStorage. When `persist: true`, the client-only plugin also calls this on client mount. Filters out invalid items and coupons using type guards.
 
 ### Checkout Hooks
 

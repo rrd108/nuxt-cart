@@ -1,8 +1,28 @@
 {
   "name": "nuxt-cart",
   "version": "0.1.0",
-  "type": "module",
+  "description": "A generic, reusable shopping cart module for Nuxt 4 with localStorage persistence, coupon support, and optional Nuxt UI components",
+  "author": "rrd <rrd@webmania.cc>",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rrd108/nuxt-cart.git"
+  },
+  "homepage": "https://github.com/rrd108/nuxt-cart#readme",
+  "bugs": {
+    "url": "https://github.com/rrd108/nuxt-cart/issues"
+  },
+  "keywords": [
+    "nuxt",
+    "nuxt-module",
+    "nuxt4",
+    "cart",
+    "shopping-cart",
+    "ecommerce",
+    "pinia",
+    "localstorage"
+  ],
+  "type": "module",
   "exports": {
     ".": {
       "types": "./dist/module.d.mts",
@@ -16,6 +36,13 @@
   ],
   "scripts": {
     "prepack": "nuxt-module-build build",
+    "build": "nuxt-module-build build",
+    "check:npm_token": "dotenv -- sh -c 'if [ -z \"$NPM_TOKEN\" ]; then echo \"❌ NPM_TOKEN environment variable is not set in .env file. Please set it to your npm token.\"; exit 1; fi'",
+    "check:npm_auth": "dotenv -- sh -c 'npm whoami --registry https://registry.npmjs.org/ --//registry.npmjs.org/:_authToken=$NPM_TOKEN'",
+    "release:publish:dry": "dotenv -- sh -c 'npm publish --dry-run --ignore-scripts --registry https://registry.npmjs.org/ --//registry.npmjs.org/:_authToken=$NPM_TOKEN'",
+    "release:preflight": "pnpm check:npm_token && pnpm check:npm_auth && sh scripts/release-preflight.sh",
+    "release": "pnpm release:preflight && pnpm test && pnpm prepack && pnpm release:publish:dry && dotenv -- changelogen --release && dotenv -- sh -c 'npm publish --//registry.npmjs.org/:_authToken=$NPM_TOKEN --registry https://registry.npmjs.org/' && git push --follow-tags",
+    "test:release": "pnpm test && pnpm build",
     "dev": "nuxi dev playground",
     "dev:build": "nuxi build playground",
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
@@ -23,7 +50,8 @@
     "test:watch": "vitest watch",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
-    "docs:preview": "vitepress preview docs"
+    "docs:preview": "vitepress preview docs",
+    "docs:release": "date +%Y%m%d%H%M%S > docs/.lastRelease && pnpm docs:build"
   },
   "dependencies": {
     "@nuxt/kit": "^4.0.0",
@@ -33,7 +61,11 @@
   "devDependencies": {
     "@nuxt/module-builder": "^1.0.0",
     "@nuxt/schema": "^4.0.0",
+    "@nuxt/ui": "^4.0.0",
+    "@pinia/nuxt": "^0.11.0",
     "@types/node": "^22.14.1",
+    "changelogen": "^0.6.2",
+    "dotenv-cli": "^11.0.0",
     "nuxt": "^4.0.0",
     "pinia": "^3.0.0",
     "typescript": "~5.8.3",
@@ -44,7 +76,7 @@
   },
   "peerDependencies": {
     "@nuxt/ui": "^4.0.0",
-    "@pinia/nuxt": "^0.x.x",
+    "@pinia/nuxt": "^0.11.0",
     "pinia": "^3.0.0"
   },
   "peerDependenciesMeta": {

@@ -30,17 +30,18 @@ pnpm add @pinia/nuxt
 
 ### 3. Add to Your Nuxt Config
 
-Add the modules to your `nuxt.config.ts`. `@pinia/nuxt` must be listed before `nuxt-cart`:
+Add the module to your `nuxt.config.ts`:
 
 ```ts
 export default defineNuxtConfig({
-  modules: ['@pinia/nuxt', 'nuxt-cart']
+  modules: ['nuxt-cart'],
 })
 ```
 
 That's it! The module automatically sets up:
+- `@pinia/nuxt` via module dependencies (no manual ordering required)
 - A Pinia store for cart state
-- localStorage persistence with auto-save
+- Client-side localStorage persistence with auto-save (when `persist: true`)
 - The `useCart()` composable available throughout your app
 
 ### 4. Use the Cart in Your App
@@ -117,7 +118,14 @@ That's it! You now have a fully functional shopping cart. 🎉
 
 ## Using Components
 
-With `@nuxt/ui` v4 installed, you can use the built-in components:
+With `@nuxt/ui` v4 installed and listed in your modules, the `NCart*` components are auto-imported:
+
+```ts
+// nuxt.config.ts
+export default defineNuxtConfig({
+  modules: ['nuxt-cart', '@nuxt/ui'],
+})
+```
 
 ```vue
 <script setup lang="ts">

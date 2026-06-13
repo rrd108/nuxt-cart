@@ -23,7 +23,7 @@ features:
   - title: 🔌 Pluggable Architecture
     details: Hook-based checkout system, coupon validation hooks, and opt-in server API routes with database support for production use.
   - title: 🎨 Nuxt UI Components
-    details: Ready-to-use drawer, item, summary, and quantity components built on @nuxt/ui v4. Global N-prefixed components.
+    details: Optional drawer, item, summary, and quantity components built on @nuxt/ui v4. Auto-imported when @nuxt/ui is in your modules array.
   - title: 🔷 TypeScript First
     details: Full TypeScript support throughout. Exported interfaces for CartItem, CartState, ModuleOptions, and more.
 ---

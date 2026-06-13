@@ -1,24 +1,26 @@
 import { defineNuxtPlugin } from '#app'
 
-export default defineNuxtPlugin(() => {
-  const cart = useCart()
+export default defineNuxtPlugin({
+  name: 'nuxt-cart',
+  setup() {
+    const config = useRuntimeConfig().public.nuxtCart
+    if (!config?.persist) return
 
-  cart.load()
+    const cart = useCart()
 
-  const saveCart = () => {
-    cart.persist()
-  }
+    cart.load()
 
-  const isClient = typeof window !== 'undefined'
+    const saveCart = () => {
+      cart.persist()
+    }
 
-  if (isClient) {
     window.addEventListener('beforeunload', saveCart)
     window.addEventListener('pagehide', saveCart)
-  }
 
-  watch(
-    [() => cart.items, () => cart.coupon],
-    saveCart,
-    { deep: true },
-  )
+    watch(
+      [() => cart.items, () => cart.coupon],
+      saveCart,
+      { deep: true },
+    )
+  },
 })

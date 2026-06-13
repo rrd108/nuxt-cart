@@ -1,14 +1,14 @@
 # Persistence
 
-Nuxt Cart provides automatic localStorage persistence out of the box. No database setup needed.
+Nuxt Cart provides automatic localStorage persistence out of the box when `persist: true` (the default). No database setup needed. Set `persist: false` in `nuxtCart` config to disable automatic hydration and auto-save.
 
 ## How It Works
 
-The persistence system has three layers:
+When persistence is enabled, the client-only `nuxt-cart` plugin handles three layers:
 
 ### 1. Hydration on Mount
 
-When the app mounts (client-side only), the plugin calls `load()` to read cart data from localStorage:
+On the client, the plugin calls `load()` to read cart data from localStorage:
 
 1. Reads `localStorage.getItem(storageKey)`
 2. Parses the JSON string using `destr` (safe parsing)
@@ -18,11 +18,11 @@ When the app mounts (client-side only), the plugin calls `load()` to read cart d
 
 ### 2. Auto-Save on Change
 
-A deep watcher monitors the `items` array and calls `persist()` on every change:
+A deep watcher monitors `items` and `coupon`, calling `persist()` on every change:
 
 ```ts
 watch(
-  () => cart.items,
+  [() => cart.items, () => cart.coupon],
   () => cart.persist(),
   { deep: true },
 )
@@ -60,7 +60,7 @@ Invalid items are silently filtered out. If the entire data is corrupt, it is di
 
 ## SSR Safety
 
-On the server:
+The persistence plugin runs **client-only** (`mode: 'client'`). On the server:
 - No localStorage access occurs
 - `isHydrated` stays `false`
 - The cart starts empty on every SSR render
@@ -88,6 +88,21 @@ This makes the module resilient to:
 - Private browsing modes that block localStorage
 - Tests running in Node.js without a DOM
 - Storage quota exceeded errors
+
+## Disabling Automatic Persistence
+
+Set `persist: false` in your config:
+
+```ts
+export default defineNuxtConfig({
+  modules: ['nuxt-cart'],
+  nuxtCart: {
+    persist: false,
+  },
+})
+```
+
+The plugin will not hydrate or auto-save. You can still call `persist()` and `load()` manually from your own code.
 
 ## Manual Control
 

@@ -65,11 +65,13 @@ export function useCart() {
 
 ## Plugin Integration
 
-The plugin runs once on app initialization:
+The client-only `nuxt-cart` plugin runs when `persist: true` (default):
 
 1. Calls `load()` to restore from localStorage
-2. Sets up a deep watcher on `items` for auto-save
+2. Sets up a deep watcher on `items` and `coupon` for auto-save
 3. Registers `beforeunload` and `pagehide` event listeners for safety
+
+When `persist: false`, the plugin exits immediately and does not touch localStorage.
 
 ## Module Registration
 
@@ -77,13 +79,14 @@ The `setup()` function in `module.ts`:
 
 1. Merges user options with defaults via `defu`
 2. Stores config in `runtimeConfig.public.nuxtCart`
-3. Registers the runtime plugin
-4. Registers the composables directory for auto-imports
-5. Registers the components directory (for future NCart* components)
+3. Declares `@pinia/nuxt` as a required module dependency (auto-ordered by Nuxt)
+4. Registers the client-only runtime plugin
+5. Registers the composables directory for auto-imports
+6. Registers `NCart*` components only when `@nuxt/ui` is in the modules list
 
-## Component Architecture (Phase 3)
+## Component Architecture
 
-Components are registered globally by the module and use `useCart()` internally:
+Components are auto-imported (not global) when `@nuxt/ui` is present and use `useCart()` internally:
 
 ```
 NCartDrawer
@@ -114,7 +117,7 @@ useCart()
 
 ### Phase 3 — Components (Done)
 - `NCartDrawer`, `NCartItem`, `NCartSummary`, `NCartQuantity`
-- Built on `@nuxt/ui` v4, global `N` prefix
+- Built on `@nuxt/ui` v4, auto-imported with `N` prefix when `@nuxt/ui` is in modules
 
 ### Phase 4 — Server API
 ```

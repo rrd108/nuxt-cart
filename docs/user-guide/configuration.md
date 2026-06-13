@@ -7,7 +7,7 @@ The Nuxt Cart module is designed to work with zero configuration, but provides c
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-  modules: ['@pinia/nuxt', 'nuxt-cart']
+  modules: ['nuxt-cart'],
   // That's it! The module works out of the box
 })
 ```
@@ -27,7 +27,7 @@ Default settings:
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-  modules: ['@pinia/nuxt', 'nuxt-cart'],
+  modules: ['nuxt-cart'],
 
   nuxtCart: {
     // Persistence
@@ -55,7 +55,7 @@ export default defineNuxtConfig({
 
 - **Type:** `boolean`
 - **Default:** `true`
-- **Description:** Enable automatic localStorage persistence. When enabled, the cart saves on every change and restores on app mount. Set to `false` if you want to handle persistence yourself.
+- **Description:** Enable automatic localStorage persistence. When `true`, the client-only plugin hydrates on mount, auto-saves on every change, and saves on `beforeunload` / `pagehide`. When `false`, the plugin skips all automatic persistence — use `cart.persist()` and `cart.load()` manually if needed.
 
 ### `storageKey`
 

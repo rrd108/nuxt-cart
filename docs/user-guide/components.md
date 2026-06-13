@@ -1,8 +1,15 @@
 # Components
 
-Nuxt Cart provides four ready-to-use Vue components built on `@nuxt/ui` v4. They are registered globally with the `N` prefix and available throughout your application.
+Nuxt Cart provides four ready-to-use Vue components built on `@nuxt/ui` v4. They are auto-imported with the `N` prefix when `@nuxt/ui` is listed in your Nuxt modules.
 
-> **Requires:** `@nuxt/ui` v4 installed as a dependency in your project.
+> **Requires:** `@nuxt/ui` v4 installed **and** added to the `modules` array in `nuxt.config.ts`. Without it, only the headless `useCart()` composable is available.
+
+```ts
+// nuxt.config.ts
+export default defineNuxtConfig({
+  modules: ['nuxt-cart', '@nuxt/ui'],
+})
+```
 
 ## NCartQuantity
 

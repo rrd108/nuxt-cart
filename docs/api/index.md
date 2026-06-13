@@ -23,18 +23,23 @@ The module provides one composable (`useCart()`) available through Nuxt auto-imp
 
 ## Plugin
 
-The module registers a Nuxt plugin (`nuxt-cart:plugin`) that:
-- Calls `load()` on app mount to hydrate from localStorage
+The module registers a client-only Nuxt plugin named `nuxt-cart` when `persist: true` (default). It:
+- Calls `load()` on client mount to hydrate from localStorage
 - Registers deep watchers for auto-save on items and coupon changes
 - Attaches `beforeunload` and `pagehide` event listeners
 
-## Module Options
+When `persist: false`, the plugin is registered but exits immediately — no automatic hydration or auto-save occurs.
 
-These are set via `nuxtCart` key in `nuxt.config.ts`. See the [Configuration guide](/user-guide/configuration) for details.
+## Module Dependencies
+
+| Module | Required | Description |
+|--------|----------|-------------|
+| `@pinia/nuxt` | Yes | Auto-registered and ordered before nuxt-cart |
+| `@nuxt/ui` | No | Required only for `NCart*` UI components |
 
 ## Components
 
-Four ready-to-use Vue components built on `@nuxt/ui` v4. See the [Components guide](/user-guide/components) for full documentation.
+Four ready-to-use Vue components built on `@nuxt/ui` v4. Auto-imported when `@nuxt/ui` is in your modules array. See the [Components guide](/user-guide/components) for full documentation.
 
 | Component | Description |
 |-----------|-------------|
@@ -42,6 +47,10 @@ Four ready-to-use Vue components built on `@nuxt/ui` v4. See the [Components gui
 | `NCartItem` | Single line item display with quantity control and remove button |
 | `NCartSummary` | Total breakdown (subtotal, discount, grand total) with checkout CTA |
 | `NCartQuantity` | Quantity selector with `+` / `-` buttons |
+
+## Module Options
+
+These are set via the `nuxtCart` key in `nuxt.config.ts`. See the [Configuration guide](/user-guide/configuration) for details.
 
 ## Server API (Coming in Phase 4)
 

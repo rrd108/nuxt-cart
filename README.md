@@ -58,11 +58,11 @@ The module requires `@pinia/nuxt` in your project:
 npm install @pinia/nuxt
 ```
 
-Add both to your `nuxt.config.ts`:
+Add the module to your `nuxt.config.ts`:
 
 ```typescript
 export default defineNuxtConfig({
-  modules: ['@pinia/nuxt', 'nuxt-cart'],
+  modules: ['nuxt-cart'],
 
   nuxtCart: {
     persist: true,
@@ -73,7 +73,15 @@ export default defineNuxtConfig({
 })
 ```
 
-> **Note:** `@pinia/nuxt` must be listed before `nuxt-cart` in the modules array.
+> **Note:** `@pinia/nuxt` is declared as a module dependency and is auto-registered by Nuxt. You still need to install it (`npm install @pinia/nuxt`), but you do not need to list it manually in `modules` unless you want to pass Pinia-specific options.
+
+For UI components, also add `@nuxt/ui` to modules:
+
+```typescript
+export default defineNuxtConfig({
+  modules: ['nuxt-cart', '@nuxt/ui'],
+})
+```
 
 ## Zero-Config Quick Start
 
@@ -81,7 +89,7 @@ The module works with no configuration at all:
 
 ```typescript
 export default defineNuxtConfig({
-  modules: ['@pinia/nuxt', 'nuxt-cart'],
+  modules: ['nuxt-cart'],
 })
 ```
 
@@ -253,11 +261,14 @@ import type { ModuleOptions, CartItem, CartState, Coupon, CheckoutHook, Validate
 
 ## Persistence Behavior
 
-The module automatically:
-1. On mount — loads cart from `localStorage` and validates item/coupon shapes
+When `persist: true` (default), the client-only plugin automatically:
+1. On client mount — loads cart from `localStorage` and validates item/coupon shapes
 2. On every change — deep-watches `items` + `coupon` and auto-saves
 3. On `beforeunload` / `pagehide` — saves as a safety net
-4. On server — no localStorage access, `isHydrated` stays `false`
+
+On the server, no localStorage access occurs and `isHydrated` stays `false`.
+
+Set `persist: false` to disable automatic hydration and auto-save. Manual `cart.persist()` / `cart.load()` remain available.
 
 Corrupt data is silently discarded; invalid items and coupons are filtered out during hydration.
 
@@ -281,11 +292,14 @@ nuxt-cart/
 │       ├── plugin.ts              # Hydration + auto-persist
 │       ├── composables/
 │       │   └── useCart.ts         # Pinia store + composable
-│       └── components/
+│       └── components/            # Registered when @nuxt/ui is in modules
 │           ├── NCartDrawer.vue
 │           ├── NCartItem.vue
 │           ├── NCartSummary.vue
 │           └── NCartQuantity.vue
+├── playground/                    # Development app
+│   ├── nuxt.config.ts
+│   └── app.vue
 ├── test/
 │   └── composables/
 │       └── useCart.spec.ts        # 49 unit tests
@@ -301,6 +315,12 @@ nuxt-cart/
 ```bash
 # Install dependencies
 pnpm install
+
+# Prepare stubs and playground types
+pnpm dev:prepare
+
+# Run the playground dev server
+pnpm dev
 
 # Run tests
 pnpm test
@@ -323,7 +343,7 @@ pnpm docs:dev
 | **2 (Coupons)** | `applyCoupon`, `removeCoupon`, `discountedTotal`, validation hooks | ✅ Done |
 | **3 (Components)** | `NCartDrawer`, `NCartItem`, `NCartSummary`, `NCartQuantity` | ✅ Done |
 | **4 (Server)** | REST API + DB + token middleware + checkout | 🔜 Next |
-| **5 (Polish)** | `onCheckout`/`checkout` hooks, playground, CI, publish | 🔜 Planned |
+| **5 (Polish)** | `onCheckout`/`checkout` hooks, CI, publish | 🔜 Planned |
 
 ## License
 

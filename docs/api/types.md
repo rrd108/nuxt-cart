@@ -136,7 +136,7 @@ const config: ModuleOptions = {
 }
 
 export default defineNuxtConfig({
-  modules: ['@pinia/nuxt', 'nuxt-cart'],
+  modules: ['nuxt-cart'],
   nuxtCart: config,
 })
 

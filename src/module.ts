@@ -4,6 +4,7 @@ import {
   addPlugin,
   addImportsDir,
   addComponentsDir,
+  hasNuxtModule,
 } from '@nuxt/kit'
 import { defu } from 'defu'
 import type { ModuleOptions } from './types'
@@ -16,6 +17,15 @@ export default defineNuxtModule<ModuleOptions>({
     compatibility: { nuxt: '>=4.0.0' },
   },
   defaults: defaultOptions,
+  moduleDependencies: {
+    '@pinia/nuxt': {
+      version: '>=0.11.0',
+    },
+    '@nuxt/ui': {
+      version: '>=4.0.0',
+      optional: true,
+    },
+  },
   setup(options, nuxt) {
     const resolver = createResolver(import.meta.url)
 
@@ -24,15 +34,19 @@ export default defineNuxtModule<ModuleOptions>({
       options,
     )
 
-    addPlugin(resolver.resolve('./runtime/plugin'))
+    addPlugin({
+      src: resolver.resolve('./runtime/plugin'),
+      mode: 'client',
+    })
 
     addImportsDir(resolver.resolve('./runtime/composables'))
+
+    if (!hasNuxtModule('@nuxt/ui')) return
 
     addComponentsDir({
       path: resolver.resolve('./runtime/components'),
       pathPrefix: false,
       prefix: 'N',
-      global: true,
     })
   },
 })

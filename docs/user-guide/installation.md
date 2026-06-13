@@ -33,7 +33,7 @@ npm install @pinia/nuxt pinia
 
 ### What Happens if Dependencies Are Missing?
 
-The module will still load, but calling `useCart()` will throw an error if Pinia is not registered. Make sure `@pinia/nuxt` is in your modules array before `nuxt-cart`.
+The module will still load, but calling `useCart()` will throw an error if Pinia is not registered. Install `@pinia/nuxt` and ensure it is available in your project.
 
 ## Add to Nuxt Config
 
@@ -41,7 +41,7 @@ Add the module to your `nuxt.config.ts`:
 
 ```ts
 export default defineNuxtConfig({
-  modules: ['@pinia/nuxt', 'nuxt-cart'],
+  modules: ['nuxt-cart'],
 
   // Optional configuration
   nuxtCart: {
@@ -53,7 +53,23 @@ export default defineNuxtConfig({
 })
 ```
 
-> **Important:** `@pinia/nuxt` must be listed **before** `nuxt-cart` in the modules array to ensure Pinia is initialized first.
+Nuxt Cart declares `@pinia/nuxt` as a [module dependency](https://nuxt.com/docs/guide/modules/module-anatomy#module-dependencies). Nuxt automatically registers and runs Pinia before this module, so you do not need to list `@pinia/nuxt` manually unless you want to pass Pinia-specific options.
+
+### Optional: Nuxt UI Components
+
+To use the built-in `NCart*` components, install `@nuxt/ui` and add it to your modules:
+
+```bash
+npm install @nuxt/ui
+```
+
+```ts
+export default defineNuxtConfig({
+  modules: ['nuxt-cart', '@nuxt/ui'],
+})
+```
+
+Components are only registered when `@nuxt/ui` is present in your modules array. The composable-only setup works without it.
 
 ## Verify Installation
 

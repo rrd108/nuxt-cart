@@ -1,4 +1,11 @@
 
+.env
+
 node_modules
 dist
+.nuxt
+playground/.nuxt
+playground/.output
 
+
+.pnpm-store
