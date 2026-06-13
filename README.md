@@ -364,65 +364,6 @@ Install the **nuxt-cart** Agent Skill so your AI coding agent (Cursor, Claude Co
 npx skills add rrd108/nuxt-cart
 ```
 
-## Module Structure
-
-```
-nuxt-cart/
-├── src/
-│   ├── module.ts                  # Module entry point
-│   ├── types.ts                   # TypeScript types
-│   ├── default-options.ts         # Default configuration
-│   └── runtime/
-│       ├── plugin.ts              # Hydration + auto-persist
-│       ├── composables/
-│       │   └── useCart.ts         # Pinia store + composable with server sync
-│       ├── components/            # Registered when @nuxt/ui is in modules
-│       │   ├── NCartDrawer.vue
-│       │   ├── NCartItem.vue
-│       │   ├── NCartSummary.vue
-│       │   └── NCartQuantity.vue
-│       └── server/                # REST API + DB (when apiRoutes: true)
-│           ├── api/cart/
-│           │   ├── index.get.ts
-│           │   ├── index.post.ts
-│           │   ├── index.delete.ts
-│           │   ├── items.post.ts
-│           │   ├── items/[itemId].patch.ts
-│           │   ├── items/[itemId].delete.ts
-│           │   ├── coupon.post.ts
-│           │   ├── coupon.delete.ts
-│           │   └── checkout.post.ts
-│           ├── composables/useCartDb.ts
-│           ├── middleware/cart-token.ts
-│           ├── plugins/auto-migrate.ts
-│           └── utils/
-│               ├── db.ts
-│               ├── migrate.ts
-│               ├── create-carts-table.ts
-│               ├── cart.ts
-│               └── build-time.ts
-├── playground/                    # Development app
-│   ├── nuxt.config.ts
-│   ├── app.vue
-│   ├── pages/
-│   │   ├── index.vue
-│   │   └── checkout.vue
-│   └── server/
-│       └── db/
-│           └── migrations/
-│               └── 001-create-cart.sql
-├── test/
-│   ├── composables/
-│   │   └── useCart.spec.ts        # 49 unit tests
-│   └── server/
-│       └── api.spec.ts            # Server API tests
-├── docs/                          # VitePress documentation
-├── package.json
-├── build.config.ts
-├── tsconfig.json
-└── vitest.config.ts
-```
-
 ## Development
 
 ```bash
@@ -447,16 +388,6 @@ pnpm prepack
 # Documentation
 pnpm docs:dev
 ```
-
-## Implementation Status
-
-| Phase | Feature | Status |
-|-------|---------|--------|
-| **1 (MVP)** | `useCart()` + Pinia store + localStorage + types + plugin | ✅ Done |
-| **2 (Coupons)** | `applyCoupon`, `removeCoupon`, `discountedTotal`, validation hooks | ✅ Done |
-| **3 (Components)** | `NCartDrawer`, `NCartItem`, `NCartSummary`, `NCartQuantity` | ✅ Done |
-| **4 (Server)** | REST API + DB + token middleware + checkout | ✅ Done |
-| **5 (Polish)** | `onCheckout`/`checkout` hooks, playground, CI, lint, publish | ✅ Done |
 
 ## License
 
