@@ -192,6 +192,32 @@ console.log(cart.isServerSynced.value) // true after sync
 </script>
 ```
 
+## Using Checkout Hooks
+
+Register payment handlers and trigger checkout from your UI:
+
+```vue
+<script setup lang="ts">
+const cart = useCart()
+
+cart.onCheckout(async (cartData) => {
+  const { data } = await useFetch('/api/checkout', {
+    method: 'POST',
+    body: cartData,
+  })
+  if (data.value?.url) return { redirectUrl: data.value.url }
+  return { error: 'Checkout failed' }
+})
+
+async function placeOrder() {
+  const result = await cart.checkout()
+  if (result.redirectUrl) {
+    window.location.href = result.redirectUrl
+  }
+}
+</script>
+```
+
 ## Next Steps
 
 Now that you have a working cart, you might want to:

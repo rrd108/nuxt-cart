@@ -196,7 +196,7 @@ isServerSynced: Ref<boolean>
 
 `true` after an initial server fetch completes. The composable fetches server cart state on hydration and uses optimistic local updates + fire-and-forget for mutations.
 
-### Checkout Hooks (Phase 5)
+### Checkout Hooks
 
 ```ts
 onCheckout(hook: CheckoutHook): void
@@ -212,7 +212,7 @@ type CheckoutHook = (cart: CartState) => Promise<{ redirectUrl?: string; error?:
 async checkout(): Promise<{ redirectUrl?: string; error?: string }>
 ```
 
-Execute checkout. Serializes the cart and passes it to all registered hooks.
+Execute checkout. Serializes the cart and passes it to all registered hooks. The first hook to return a `redirectUrl` or `error` wins; if all hooks return `{}`, checkout resolves with an empty result.
 
 ## Type Imports
 

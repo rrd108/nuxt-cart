@@ -326,6 +326,38 @@ function removeCoupon() {
 </template>
 ```
 
+## Using Checkout Hooks
+
+Register a payment handler and trigger checkout:
+
+```vue
+<script setup lang="ts">
+const cart = useCart()
+
+cart.onCheckout(async (cartData) => {
+  // Send cart data to your payment gateway
+  const { data } = await useFetch('/api/checkout', {
+    method: 'POST',
+    body: cartData,
+  })
+  if (data.value?.url) return { redirectUrl: data.value.url }
+  return { error: 'Checkout failed' }
+})
+
+async function handleCheckout() {
+  const result = await cart.checkout()
+  if (result.redirectUrl) {
+    window.location.href = result.redirectUrl
+  } else if (result.error) {
+    alert(result.error)
+  } else {
+    // No handlers registered — proceed with default flow
+    cart.clear()
+  }
+}
+</script>
+```
+
 ## Testing Your Setup
 
 ```bash

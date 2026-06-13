@@ -232,6 +232,28 @@ cart.cartToken      // cart token from cookie
 
 The REST API uses a `db0` database with auto-migration on first run.
 
+### With checkout hooks
+
+```typescript
+const cart = useCart()
+
+// Register a payment handler
+cart.onCheckout(async (cartData) => {
+  const { data } = await useFetch('/api/checkout', {
+    method: 'POST',
+    body: cartData,
+  })
+  if (data.value?.url) return { redirectUrl: data.value.url }
+  return { error: 'Checkout failed' }
+})
+
+// Trigger checkout — runs all registered hooks
+const result = await cart.checkout()
+if (result.redirectUrl) window.location.href = result.redirectUrl
+```
+
+Multiple checkout hooks can be registered; they run sequentially. The first to return a `redirectUrl` or `error` wins.
+
 ## API
 
 ### `useCart()` composable
@@ -362,7 +384,14 @@ nuxt-cart/
 │               └── build-time.ts
 ├── playground/                    # Development app
 │   ├── nuxt.config.ts
-│   └── app.vue
+│   ├── app.vue
+│   ├── pages/
+│   │   ├── index.vue
+│   │   └── checkout.vue
+│   └── server/
+│       └── db/
+│           └── migrations/
+│               └── 001-create-cart.sql
 ├── test/
 │   ├── composables/
 │   │   └── useCart.spec.ts        # 49 unit tests

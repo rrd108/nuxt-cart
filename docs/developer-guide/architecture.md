@@ -147,3 +147,21 @@ Key implementation details:
 - **`useCartDb` server composable** wraps `db0` connections with typed query helpers for carts, items, and coupons
 - **`auto-migrate` plugin** creates tables on first run using a state machine that tracks applied migrations
 - **Client-server sync**: mutations are optimistic (local update first) + fire-and-forget to the server. On hydration, server cart is fetched as source of truth.
+
+### Phase 5 — Polish (Done)
+
+Checkout hooks, playground app, ESLint, CI pipeline, and publish tooling:
+
+```
+useCart()
+  ├── onCheckout(hook)           # Register a checkout handler
+  └── checkout()                 # Run all handlers sequentially
+       └── returns { redirectUrl?, error? }
+```
+
+- **`onCheckout`/`checkout`** — hook-based system where multiple handlers can be registered. Each receives the full `CartState` and returns a redirect URL or error. The first response wins.
+- **Playground** — full development app with product listing, cart drawer, and checkout page at `/checkout`
+- **CI** — GitHub Actions runs lint → typecheck → test → build on push/PR to main
+- **ESLint** — flat config using `@nuxt/eslint/config`
+- **Renovate** — auto-merge minor/patch dependencies, weekly schedule
+- **Release** — `pnpm release` runs preflight checks, tests, build, changelogen, and npm publish
