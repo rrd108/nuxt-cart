@@ -160,7 +160,7 @@ useCart()
 ```
 
 - **`onCheckout`/`checkout`** — hook-based system where multiple handlers can be registered. Each receives the full `CartState` and returns a redirect URL or error. The first response wins.
-- **Playground** — full development app with product listing, cart drawer, and checkout page at `/checkout`
+- **Playground** — full development app with 8 products across 3 categories, `/cart` page with quantity controls and order summary, `/checkout` page with loading state and `cart.checkout()` integration, and `/order-success` confirmation.
 - **CI** — GitHub Actions runs lint → typecheck → test → build on push/PR to main
 - **ESLint** — flat config using `@nuxt/eslint/config`
 - **Renovate** — auto-merge minor/patch dependencies, weekly schedule

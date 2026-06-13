@@ -1,8 +1,0 @@
-{
-  "name": "nuxt-cart-playground",
-  "buildCommand": "pnpm install && pnpm dev:prepare && NUXT_CART_DEMO=true pnpm dev:build",
-  "outputDirectory": "playground/.output/public",
-  "installCommand": "pnpm install",
-  "framework": "nuxt",
-  "regions": ["iad1"]
-}

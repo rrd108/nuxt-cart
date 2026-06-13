@@ -25,9 +25,19 @@ nuxt-cart/
 │           ├── middleware/cart-token.ts
 │           ├── plugins/auto-migrate.ts
 │           └── utils/
-├── playground/                    # Development app for manual testing
+├── playground/                    # Development app + live demo
 │   ├── nuxt.config.ts
-│   └── app.vue
+│   ├── app.vue
+│   ├── layouts/default.vue        # Sticky header, cart drawer, footer
+│   ├── pages/
+│   │   ├── index.vue              # Product listing (3 categories, 8 products)
+│   │   ├── cart.vue               # Full cart management page
+│   │   ├── checkout.vue           # Order review + place order
+│   │   └── order-success.vue      # Confirmation page
+│   └── server/
+│       └── db/
+│           └── migrations/
+│               └── 001-create-cart.sql
 ├── test/
 │   ├── composables/
 │   │   └── useCart.spec.ts        # 49 unit tests
