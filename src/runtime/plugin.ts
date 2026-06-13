@@ -1,4 +1,6 @@
 import { defineNuxtPlugin, useRuntimeConfig } from '#app'
+import { useCart } from './composables/useCart'
+import { watch } from 'vue'
 
 export default defineNuxtPlugin({
   name: 'nuxt-cart',
