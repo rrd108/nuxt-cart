@@ -11,3 +11,5 @@ playground/.output
 .pnpm-store
 
 :memory:
+
+.data/
