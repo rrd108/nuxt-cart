@@ -1,3 +1,5 @@
+const isDemo = process.env.NUXT_CART_DEMO === 'true'
+
 export default defineNuxtConfig({
   modules: [
     '../src/module',
@@ -6,14 +8,24 @@ export default defineNuxtConfig({
 
   nuxtCart: {
     persist: true,
-    apiRoutes: true,
+    apiRoutes: !isDemo,
     coupons: true,
     currency: 'USD',
-    connector: {
-      name: 'sqlite',
-      options: { path: './.data/cart.sqlite3' },
-    },
+    ...(isDemo
+      ? {}
+      : {
+          connector: {
+            name: 'sqlite',
+            options: { path: './.data/cart.sqlite3' },
+          },
+        }),
   },
 
-  devtools: { enabled: true },
+  devtools: { enabled: !isDemo },
+
+  $production: {
+    app: {
+      baseURL: '/',
+    },
+  },
 })
