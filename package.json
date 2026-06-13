@@ -50,7 +50,7 @@
     "lint:fix": "oxlint --fix --deny-warnings",
     "test": "vitest run",
     "test:watch": "vitest watch",
-    "test:types": "cd playground && vue-tsc --noEmit",
+    "test:types": "nuxt-module-build build --stub && nuxi prepare playground && cd playground && vue-tsc --noEmit",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",
