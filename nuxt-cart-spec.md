@@ -40,12 +40,12 @@ nuxt-cart/
 ├── package.json                  ✅
 ├── build.config.ts               ✅
 ├── tsconfig.json                 ✅
-├── eslint.config.mjs             ⬜ (Phase 5)
-├── renovate.json                 ⬜ (Phase 5)
+├── eslint.config.mjs             ✅ (Phase 5)
+├── renovate.json                 ✅ (Phase 5)
 ├── .github/
 │   └── workflows/
-│       └── ci.yml                ⬜ (Phase 5)
-├── playground/                   ⬜ (Phase 5)
+│       └── ci.yml                ✅ (Phase 5)
+├── playground/                   ✅ (Phase 5)
 │   ├── nuxt.config.ts
 │   ├── app.vue
 │   ├── pages/
@@ -120,12 +120,12 @@ nuxt-cart/
     "dev": "nuxi dev playground",                ⬜ (needs playground)
     "dev:build": "nuxi build playground",         ⬜ (needs playground)
     "dev:prepare": "nuxt-module-build build --stub && ...", ⬜ (needs playground)
-    "lint": "eslint .",                          ⬜ (Phase 5)
-    "lint:fix": "eslint . --fix",                ⬜ (Phase 5)
+    "lint": "eslint .",                          ✅ (Phase 5)
+    "lint:fix": "eslint . --fix",                ✅ (Phase 5)
     "test": "vitest run",                        ✅
     "test:watch": "vitest watch",                ✅
-    "test:types": "vue-tsc --noEmit",            ⬜ (Phase 5)
-    "release": "changelogen --release && ...",   ⬜ (Phase 5)
+    "test:types": "vue-tsc --noEmit",            ✅ (Phase 5)
+    "release": "changelogen --release && ...",   ✅ (Phase 5)
     "docs:dev": "vitepress dev docs",            ✅
     "docs:build": "vitepress build docs",        ✅
     "docs:preview": "vitepress preview docs"     ✅
@@ -255,8 +255,8 @@ export function useCart(): {
   isServerSynced: Ref<boolean>               ✅ (Phase 4)
 
   // Checkout
-  onCheckout: (hook: CheckoutHook) => void   ⬜ (Phase 5)
-  checkout(): Promise<...>                   ⬜ (Phase 5)
+  onCheckout: (hook: CheckoutHook) => void   ✅ (Phase 5)
+  checkout(): Promise<...>                   ✅ (Phase 5)
 }
 ```
 
@@ -266,8 +266,8 @@ export function useCart(): {
 - `removeItem`: Splice item from array entirely. ✅
 - `updateQuantity`: Set exact quantity. If 0, remove item. ✅
 - `applyCoupon`: If `coupons` enabled, calls optional `validateCoupon` hook. Stores coupon. ✅
-- `onCheckout`: Registers a handler. ⬜
-- `checkout`: Serializes cart, passes to all registered hooks. ⬜
+- `onCheckout`: Registers a handler. ✅
+- `checkout`: Serializes cart, passes to all registered hooks. Returns `{ redirectUrl, error }` from the first hook that responds. ✅
 - When `apiRoutes: true`, all mutations sync to the server API (optimistic local + fire-and-forget server). On hydration, background-fetches server cart state. ✅
 
 ### Hydration ✅
@@ -386,10 +386,20 @@ cart.onValidateCoupon(async (code) => {
 })
 ```
 
-### With payment (SimplePay) ⬜ (Phase 5)
+### With payment (SimplePay) ✅ (Phase 5)
 
 ```typescript
-cart.onCheckout(async (cartData) => { ... })
+cart.onCheckout(async (cartData) => {
+  // Send cartData to payment gateway
+  // Return { redirectUrl } or { error }
+  return { redirectUrl: 'https://gateway.com/checkout' }
+})
+
+// Trigger checkout
+const result = await cart.checkout()
+if (result.redirectUrl) {
+  window.location.href = result.redirectUrl
+}
 ```
 
 ---
@@ -402,7 +412,7 @@ cart.onCheckout(async (cartData) => { ... })
 | **2. Coupons** | `applyCoupon`, `removeCoupon`, `discountedTotal`, `onValidateCoupon`, `isValidCoupon` | ✅ Done | `useCart.ts`, `types.ts`, `useCart.spec.ts` |
 | **3. Components** | `NCartDrawer`, `NCartItem`, `NCartSummary`, `NCartQuantity` | ✅ Done | `components/` folder |
 | **4. Server routes** | REST API (9 endpoints) + db0 DB + token middleware + auto-migrate + client-server sync | ✅ Done | `server/api/`, `server/composables/useCartDb.ts` |
-| **5. Polish** | `onCheckout`/`checkout` hooks, playground, CI, lint, publish | 🔜 Planned | `test/`, `README.md`, `playground/` |
+| **5. Polish** | `onCheckout`/`checkout` hooks, playground, CI, lint, publish | ✅ Done | `test/`, `README.md`, `playground/` |
 
 ---
 
@@ -414,7 +424,7 @@ cart.onCheckout(async (cartData) => { ... })
 - **API route naming**: `{resource}.{method}.ts` (e.g., `items.post.ts`) ✅
 - **Build**: unbuild with `build.config.ts`, externals for `@nuxt/kit`, `nuxt`, `vue` ✅
 - **Tests**: vitest (49 unit + server API tests) ✅
-- **CI**: GitHub Actions (lint → typecheck → test) ⬜
+- **CI**: GitHub Actions (lint → typecheck → test → build) ✅
 
 ---
 

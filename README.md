@@ -48,8 +48,9 @@ A generic, reusable shopping cart module for Nuxt 4 applications. Zero-config lo
   - Database-backed persistence via db0 (SQLite, MySQL, PostgreSQL)
   - Automatic client-server sync with optimistic local updates
 
-- 🔌 **Pluggable Architecture** (Phase 5)
-  - Hook-based payment gateway integration
+- 🔌 **Pluggable Architecture**
+  - Hook-based payment gateway integration via `onCheckout`/`checkout`
+  - Custom coupon validation via `onValidateCoupon`
 
 ## Installation
 
@@ -253,6 +254,8 @@ The REST API uses a `db0` database with auto-migration on first run.
 | `applyCoupon(code)` | `(code: string) => Promise<void>` | Apply coupon via registered hook |
 | `removeCoupon()` | `() => void` | Remove the active coupon |
 | `onValidateCoupon(hook)` | `(hook: ValidateCouponHook) => void` | Register coupon validation handler |
+| `onCheckout(hook)` | `(hook: CheckoutHook) => void` | Register checkout handler |
+| `checkout()` | `() => Promise<Result>` | Execute all checkout hooks, returns `{ redirectUrl?, error? }` |
 | `persist()` | `() => void` | Save to localStorage |
 | `load()` | `() => void` | Restore from localStorage |
 
@@ -405,7 +408,7 @@ pnpm docs:dev
 | **2 (Coupons)** | `applyCoupon`, `removeCoupon`, `discountedTotal`, validation hooks | ✅ Done |
 | **3 (Components)** | `NCartDrawer`, `NCartItem`, `NCartSummary`, `NCartQuantity` | ✅ Done |
 | **4 (Server)** | REST API + DB + token middleware + checkout | ✅ Done |
-| **5 (Polish)** | `onCheckout`/`checkout` hooks, CI, publish | 🔜 Planned |
+| **5 (Polish)** | `onCheckout`/`checkout` hooks, playground, CI, lint, publish | ✅ Done |
 
 ## License
 

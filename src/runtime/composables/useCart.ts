@@ -2,7 +2,7 @@ import { ref, computed, watch } from 'vue'
 import { defineStore, storeToRefs } from 'pinia'
 import { useRuntimeConfig } from '#app'
 import { destr } from 'destr'
-import type { ModuleOptions, CartItem, CartState, Coupon, ValidateCouponHook } from '../../types'
+import type { ModuleOptions, CartItem, CartState, Coupon, CheckoutHook, ValidateCouponHook } from '../../types'
 
 const useCartStore = defineStore('nuxt-cart', () => {
   const config = (useRuntimeConfig().public?.nuxtCart ?? {}) as ModuleOptions
@@ -13,6 +13,7 @@ const useCartStore = defineStore('nuxt-cart', () => {
   const coupon = ref<Coupon | null>(null)
   const isHydrated = ref(false)
   const validateCouponHooks: ValidateCouponHook[] = []
+  const checkoutHooks: CheckoutHook[] = []
 
   const totalAmount = computed(() =>
     items.value.reduce((sum, item) => sum + item.price * item.quantity, 0),
@@ -66,6 +67,24 @@ const useCartStore = defineStore('nuxt-cart', () => {
 
   function onValidateCoupon(hook: ValidateCouponHook): void {
     validateCouponHooks.push(hook)
+  }
+
+  function onCheckout(hook: CheckoutHook): void {
+    checkoutHooks.push(hook)
+  }
+
+  async function checkout(): Promise<{ redirectUrl?: string; error?: string }> {
+    const state: CartState = {
+      items: [...items.value],
+      coupon: coupon.value ? { ...coupon.value } : null,
+    }
+    for (const hook of checkoutHooks) {
+      const result = await hook(state)
+      if (result.redirectUrl || result.error) {
+        return result
+      }
+    }
+    return {}
   }
 
   async function applyCoupon(code: string): Promise<void> {
@@ -134,6 +153,8 @@ const useCartStore = defineStore('nuxt-cart', () => {
     applyCoupon,
     removeCoupon,
     onValidateCoupon,
+    onCheckout,
+    checkout,
   }
 })
 
@@ -302,6 +323,8 @@ export function useCart() {
     applyCoupon,
     removeCoupon,
     onValidateCoupon: store.onValidateCoupon,
+    onCheckout: store.onCheckout,
+    checkout: store.checkout,
     syncFromServer,
   }
 }
