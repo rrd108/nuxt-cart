@@ -1,5 +1,21 @@
 # Changelog
 
+## v1.1.3
+
+[compare changes](https://github.com/rrd108/nuxt-cart/compare/v1.1.2...v1.1.3)
+
+### 🩹 Fixes
+
+- Add explicit imports in plugin to prevent ReferenceError in consumer apps ([47e14e9](https://github.com/rrd108/nuxt-cart/commit/47e14e9))
+
+### 🏡 Chore
+
+- **release:** V1.1.2 ([097a7f4](https://github.com/rrd108/nuxt-cart/commit/097a7f4))
+
+### ❤️ Contributors
+
+- Rrd108 ([@rrd108](https://github.com/rrd108))
+
 ## v1.1.2
 
 [compare changes](https://github.com/rrd108/nuxt-cart/compare/v1.1.1...v1.1.2)
