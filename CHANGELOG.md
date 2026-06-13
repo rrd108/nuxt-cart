@@ -1,5 +1,27 @@
 # Changelog
 
+## v1.1.2
+
+[compare changes](https://github.com/rrd108/nuxt-cart/compare/v1.1.1...v1.1.2)
+
+### 🩹 Fixes
+
+- Move DB deps from optionalDependencies to peerDependencies to avoid auto-install in consumer apps ([9e79d49](https://github.com/rrd108/nuxt-cart/commit/9e79d49))
+- Add explicit useRuntimeConfig import in plugin to prevent ReferenceError in consumer apps ([3401a0a](https://github.com/rrd108/nuxt-cart/commit/3401a0a))
+
+### 📖 Documentation
+
+- Clarify that DB drivers are optional peer dependencies that must be explicitly installed ([ee73ef1](https://github.com/rrd108/nuxt-cart/commit/ee73ef1))
+
+### 🏡 Chore
+
+- **release:** V1.1.1 ([e8e2b13](https://github.com/rrd108/nuxt-cart/commit/e8e2b13))
+- Add ignore data ([d4c0338](https://github.com/rrd108/nuxt-cart/commit/d4c0338))
+
+### ❤️ Contributors
+
+- Rrd108 ([@rrd108](https://github.com/rrd108))
+
 ## v1.1.1
 
 [compare changes](https://github.com/rrd108/nuxt-cart/compare/v1.1.0...v1.1.1)
