@@ -41,8 +41,8 @@
     "check:npm_auth": "dotenv -- sh -c 'npm whoami --registry https://registry.npmjs.org/ --//registry.npmjs.org/:_authToken=$NPM_TOKEN'",
     "release:publish:dry": "dotenv -- sh -c 'npm publish --dry-run --ignore-scripts --registry https://registry.npmjs.org/ --//registry.npmjs.org/:_authToken=$NPM_TOKEN'",
     "release:preflight": "pnpm check:npm_token && pnpm check:npm_auth && sh scripts/release-preflight.sh",
-    "release": "pnpm release:preflight && pnpm test && pnpm prepack && pnpm release:publish:dry && dotenv -- changelogen --release && npm publish --auth-type=web --registry https://registry.npmjs.org/ && git push --follow-tags",
-    "test:release": "pnpm test && pnpm build",
+    "release": "pnpm release:preflight && pnpm lint && pnpm test:types && pnpm test && pnpm prepack && pnpm release:publish:dry && dotenv -- changelogen --release && npm publish --auth-type=web --registry https://registry.npmjs.org/ && git push --follow-tags",
+    "test:release": "pnpm lint && pnpm test:types && pnpm test && pnpm build",
     "dev": "nuxi dev playground",
     "dev:build": "nuxi build playground",
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
@@ -90,6 +90,7 @@
     "pg": "*",
     "pinia": "^3.0.0"
   },
+  "packageManager": "pnpm@10.17.1",
   "pnpm": {
     "onlyBuiltDependencies": [
       "better-sqlite3"
