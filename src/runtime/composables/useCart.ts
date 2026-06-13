@@ -96,7 +96,6 @@ const useCartStore = defineStore('nuxt-cart', () => {
       localStorage.setItem(storageKey, JSON.stringify(state))
     }
     catch {
-      // localStorage not available (SSR, test, or privacy mode)
     }
   }
 
@@ -115,7 +114,6 @@ const useCartStore = defineStore('nuxt-cart', () => {
       isHydrated.value = true
     }
     catch {
-      // localStorage not available
     }
   }
 
@@ -164,8 +162,37 @@ function isValidCartItem(value: unknown): value is CartItem {
   )
 }
 
+function loadToken(storageKey: string): string | null {
+  try {
+    const raw = localStorage.getItem(`${storageKey}-token`)
+    return raw ? destr<string>(raw) : null
+  }
+  catch {
+    return null
+  }
+}
+
+function saveToken(storageKey: string, token: string): void {
+  try {
+    localStorage.setItem(`${storageKey}-token`, token)
+  }
+  catch {
+  }
+}
+
+function removeToken(storageKey: string): void {
+  try {
+    localStorage.removeItem(`${storageKey}-token`)
+  }
+  catch {
+  }
+}
+
 export function useCart() {
   const store = useCartStore()
+  const config = (useRuntimeConfig().public?.nuxtCart ?? {}) as ModuleOptions
+  const storageKey = config.storageKey || 'nuxt-cart'
+
   const {
     items,
     coupon,
@@ -175,17 +202,87 @@ export function useCart() {
     itemCount,
     isEmpty,
   } = storeToRefs(store)
-  const {
-    addItem,
-    removeItem,
-    updateQuantity,
-    clear,
-    persist,
-    load,
-    applyCoupon,
-    removeCoupon,
-    onValidateCoupon,
-  } = store
+
+  const cartToken = ref<string | null>(loadToken(storageKey))
+  const isServerSynced = ref(false)
+
+  async function ensureServerCart(): Promise<string | null> {
+    if (!config.apiRoutes) return null
+    if (cartToken.value) return cartToken.value
+    try {
+      const { token } = await $fetch('/api/cart', { method: 'POST' })
+      cartToken.value = token
+      saveToken(storageKey, token)
+      for (const item of items.value) {
+        await $fetch('/api/cart/items', { method: 'POST', body: item }).catch(() => {})
+      }
+      return token
+    }
+    catch {
+      return null
+    }
+  }
+
+  async function syncFromServer(): Promise<void> {
+    if (!config.apiRoutes || !cartToken.value) return
+    try {
+      const serverCart = await $fetch('/api/cart')
+      if (serverCart?.items) {
+        store.$patch({ items: serverCart.items, coupon: serverCart.coupon ?? null })
+      }
+      isServerSynced.value = true
+    }
+    catch {
+      cartToken.value = null
+      removeToken(storageKey)
+    }
+  }
+
+  async function addItem(input: Omit<CartItem, 'quantity'> & { quantity?: number }): Promise<void> {
+    store.addItem(input)
+    if (!config.apiRoutes) return
+    const token = await ensureServerCart()
+    if (token) {
+      await $fetch('/api/cart/items', { method: 'POST', body: input }).catch(() => {})
+    }
+  }
+
+  async function removeItem(productId: string): Promise<void> {
+    store.removeItem(productId)
+    if (!config.apiRoutes || !cartToken.value) return
+    await $fetch(`/api/cart/items/${encodeURIComponent(productId)}`, { method: 'DELETE' }).catch(() => {})
+  }
+
+  async function updateQuantity(productId: string, quantity: number): Promise<void> {
+    store.updateQuantity(productId, quantity)
+    if (!config.apiRoutes || !cartToken.value) return
+    await $fetch(`/api/cart/items/${encodeURIComponent(productId)}`, {
+      method: 'PATCH',
+      body: { quantity },
+    }).catch(() => {})
+  }
+
+  async function clear(): Promise<void> {
+    store.clear()
+    if (!config.apiRoutes || !cartToken.value) return
+    await $fetch('/api/cart', { method: 'DELETE' }).catch(() => {})
+  }
+
+  async function applyCoupon(code: string): Promise<void> {
+    await store.applyCoupon(code)
+    if (!config.apiRoutes || !cartToken.value) return
+    await $fetch('/api/cart/coupon', {
+      method: 'POST',
+      body: { code },
+    }).catch(() => {})
+  }
+
+  async function removeCoupon(): Promise<void> {
+    store.removeCoupon()
+    if (!config.apiRoutes || !cartToken.value) return
+    await $fetch('/api/cart/coupon', { method: 'DELETE' }).catch(() => {})
+  }
+
   return {
     items,
     coupon,
@@ -194,14 +291,17 @@ export function useCart() {
     discountedTotal,
     itemCount,
     isEmpty,
+    cartToken,
+    isServerSynced,
     addItem,
     removeItem,
     updateQuantity,
     clear,
-    persist,
-    load,
+    persist: store.persist,
+    load: store.load,
     applyCoupon,
     removeCoupon,
-    onValidateCoupon,
+    onValidateCoupon: store.onValidateCoupon,
+    syncFromServer,
   }
 }

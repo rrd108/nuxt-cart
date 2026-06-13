@@ -9,3 +9,5 @@ playground/.output
 
 
 .pnpm-store
+
+:memory:

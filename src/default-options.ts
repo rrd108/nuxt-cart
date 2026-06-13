@@ -7,4 +7,10 @@ export const defaultOptions: ModuleOptions = {
   currency: 'USD',
   coupons: false,
   maxQuantity: 99,
+  connector: {
+    name: 'sqlite',
+    options: {
+      path: './data/cart.sqlite3',
+    },
+  },
 }

@@ -24,7 +24,7 @@ No standalone, backend-agnostic Nuxt cart module exists on npm. Existing solutio
 | Decision | Choice | Reasoning | Status |
 |----------|--------|-----------|--------|
 | **State management** | Pinia (setup store) | Matches all existing apps, @pinia/nuxt is standard | ✅ |
-| **Persistence** | localStorage (default), opt-in server DB | Zero-config useful, server routes for recovery | ✅ (localStorage) ⬜ (server DB) |
+| **Persistence** | localStorage (default), opt-in server DB | Zero-config useful, server routes for recovery | ✅ (localStorage) ✅ (server DB) |
 | **Components** | Built on @nuxt/ui v4 | Matches CommerceJS approach, clean DX | ✅ |
 | **Payments** | Hook-based (`cart.onCheckout(fn)`) | Flexible, any gateway (SimplePay, Stripe, etc.) | ⬜ (Phase 5) |
 | **Coupons** | Built-in composable logic | Client-side by default, server validation via hook | ✅ |
@@ -70,25 +70,30 @@ nuxt-cart/
 │       │   └── NCartQuantity.vue ✅
 │       ├── middleware/
 │       │   └── cart.client.ts    ⬜
-│       └── server/               ⬜ (Phase 4)
-│           ├── tsconfig.json
+│       └── server/               ✅ (Phase 4)
 │           ├── api/
 │           │   └── cart/
-│           │       ├── index.get.ts
-│           │       ├── index.post.ts
-│           │       ├── items.post.ts
-│           │       ├── items/[itemId].patch.ts
-│           │       ├── items/[itemId].delete.ts
-│           │       └── checkout.post.ts
+│           │       ├── index.get.ts          ✅
+│           │       ├── index.post.ts         ✅
+│           │       ├── index.delete.ts       ✅
+│           │       ├── items.post.ts         ✅
+│           │       ├── items/[itemId].patch.ts ✅
+│           │       ├── items/[itemId].delete.ts ✅
+│           │       ├── coupon.post.ts        ✅
+│           │       ├── coupon.delete.ts      ✅
+│           │       └── checkout.post.ts      ✅
 │           ├── composables/
-│           │   └── useCartDb.ts
+│           │   └── useCartDb.ts              ✅
 │           ├── middleware/
-│           │   └── cart-token.ts
+│           │   └── cart-token.ts             ✅
 │           ├── plugins/
-│           │   └── auto-migrate.ts
+│           │   └── auto-migrate.ts           ✅
 │           └── utils/
-│               ├── cart-validator.ts
-│               └── pricing.ts
+│               ├── build-time.ts             ✅
+│               ├── db.ts                     ✅
+│               ├── migrate.ts                ✅
+│               ├── create-carts-table.ts     ✅
+│               └── cart.ts                   ✅
 └── test/
     ├── composables/
     │   └── useCart.spec.ts       ✅ (49 tests)
@@ -179,20 +184,25 @@ export default defineNuxtModule<ModuleOptions>({
 })
 ```
 
-Not yet implemented (⬜ Phase 4) — server API routes block:
+Implemented (✅ Phase 4) — server API routes block:
 
 ```typescript
-    // ⬜ Server API routes (opt-in)
+    // ✅ Server API routes (opt-in)
     if (options.apiRoutes) {
-      addServerHandler({ route: '/api/cart', method: 'get', handler: ... })
-      addServerHandler({ route: '/api/cart', method: 'post', handler: ... })
-      addServerHandler({ route: '/api/cart/items', method: 'post', handler: ... })
-      addServerHandler({ route: '/api/cart/items/:itemId', method: 'patch', handler: ... })
-      addServerHandler({ route: '/api/cart/items/:itemId', method: 'delete', handler: ... })
-      addServerHandler({ route: '/api/cart/checkout', method: 'post', handler: ... })
-      addServerMiddleware({ handler: resolver.resolve('./runtime/server/middleware/cart-token') })
+      const serverDir = resolver.resolve('./runtime/server')
+      addServerHandler({ route: '/api/cart', method: 'get', handler: `${serverDir}/api/cart/index.get` })
+      addServerHandler({ route: '/api/cart', method: 'post', handler: `${serverDir}/api/cart/index.post` })
+      addServerHandler({ route: '/api/cart', method: 'delete', handler: `${serverDir}/api/cart/index.delete` })
+      addServerHandler({ route: '/api/cart/items', method: 'post', handler: `${serverDir}/api/cart/items.post` })
+      addServerHandler({ route: '/api/cart/items/:itemId', method: 'patch', handler: `${serverDir}/api/cart/items/[itemId].patch` })
+      addServerHandler({ route: '/api/cart/items/:itemId', method: 'delete', handler: `${serverDir}/api/cart/items/[itemId].delete` })
+      addServerHandler({ route: '/api/cart/coupon', method: 'post', handler: `${serverDir}/api/cart/coupon.post` })
+      addServerHandler({ route: '/api/cart/coupon', method: 'delete', handler: `${serverDir}/api/cart/coupon.delete` })
+      addServerHandler({ route: '/api/cart/checkout', method: 'post', handler: `${serverDir}/api/cart/checkout.post` })
+      addServerHandler({ middleware: true, handler: `${serverDir}/middleware/cart-token` })
       addServerPlugin(resolver.resolve('./runtime/server/plugins/auto-migrate'))
-      addServerScanDir(resolver.resolve('./runtime/server'))
+      nitroxConfig.experimental = nitroxConfig.experimental || {}
+      nitroxConfig.experimental.database = true
     }
 ```
 
@@ -201,12 +211,14 @@ Not yet implemented (⬜ Phase 4) — server API routes block:
 ## Types (`src/types.ts`) ✅ All implemented
 
 ```typescript
-export interface ModuleOptions { ... }       ✅
-export interface CartItem { ... }            ✅
-export interface Coupon { ... }              ✅
-export interface CartState { ... }           ✅
-export interface CheckoutHook { ... }        ✅ (defined, checkout() not wired)
-export interface ValidateCouponHook { ... }  ✅
+export type DatabaseType = 'sqlite' | 'mysql' | 'postgresql'   ✅ (Phase 4)
+export interface DatabaseConfig { ... }                         ✅ (Phase 4)
+export interface ModuleOptions { ... connector?: ... }          ✅
+export interface CartItem { ... }                               ✅
+export interface Coupon { ... }                                 ✅
+export interface CartState { ... }                              ✅
+export interface CheckoutHook { ... }                           ✅ (defined, checkout() not wired)
+export interface ValidateCouponHook { ... }                     ✅
 ```
 
 ---
@@ -238,6 +250,10 @@ export function useCart(): {
   persist()                                  ✅
   load()                                     ✅
 
+  // Server sync (when `apiRoutes: true`)
+  cartToken: Ref<string | null>              ✅ (Phase 4)
+  isServerSynced: Ref<boolean>               ✅ (Phase 4)
+
   // Checkout
   onCheckout: (hook: CheckoutHook) => void   ⬜ (Phase 5)
   checkout(): Promise<...>                   ⬜ (Phase 5)
@@ -252,6 +268,7 @@ export function useCart(): {
 - `applyCoupon`: If `coupons` enabled, calls optional `validateCoupon` hook. Stores coupon. ✅
 - `onCheckout`: Registers a handler. ⬜
 - `checkout`: Serializes cart, passes to all registered hooks. ⬜
+- When `apiRoutes: true`, all mutations sync to the server API (optimistic local + fire-and-forget server). On hydration, background-fetches server cart state. ✅
 
 ### Hydration ✅
 
@@ -285,22 +302,35 @@ The plugin handles SSR safety:
 
 ---
 
-## Server API Routes (when `apiRoutes: true`) ⬜ Phase 4
+## Server API Routes (when `apiRoutes: true`) ✅ Phase 4
 
-| Method | Route | Description | Status |
-|--------|-------|-------------|--------|
-| `GET` | `/api/cart?token=` | Fetch cart by token | ⬜ |
-| `POST` | `/api/cart` | Create new cart, return `{ token }` | ⬜ |
-| `POST` | `/api/cart/items` | Add item to cart | ⬜ |
-| `PATCH` | `/api/cart/items/:itemId` | Update quantity | ⬜ |
-| `DELETE` | `/api/cart/items/:itemId` | Remove item | ⬜ |
-| `POST` | `/api/cart/checkout` | Freeze cart, return order reference | ⬜ |
+| Method | Route | Description | Token required |
+|--------|-------|-------------|:---:|
+| `POST` | `/api/cart` | Create new cart, return `{ token }` | No |
+| `GET` | `/api/cart` | Fetch cart by token (from cookie) | Yes |
+| `DELETE` | `/api/cart` | Clear all items from cart | Yes |
+| `POST` | `/api/cart/items` | Add item to cart | Yes |
+| `PATCH` | `/api/cart/items/:itemId` | Update quantity | Yes |
+| `DELETE` | `/api/cart/items/:itemId` | Remove item | Yes |
+| `POST` | `/api/cart/coupon` | Apply coupon `{ code }` | Yes |
+| `DELETE` | `/api/cart/coupon` | Remove coupon | Yes |
+| `POST` | `/api/cart/checkout` | Freeze cart, return `{ orderReference }` | Yes |
 
-Cart token is stored in a cookie (httpOnly) by the `cart-token` middleware. ⬜
+Cart token is stored in an httpOnly cookie by the `cart-token` middleware. ✅
 
-### Auto-migration ⬜
+### Database ✅
 
-Server plugin `auto-migrate.ts` creates the table on first run.
+Uses **`db0`** (UnJS database abstraction) with three configurable connectors:
+
+| Connector | Package | Default |
+|-----------|---------|---------|
+| SQLite | `better-sqlite3` | ✅ (default, `./data/cart.sqlite3`) |
+| MySQL | `mysql2` | opt-in |
+| PostgreSQL | `pg` | opt-in |
+
+### Auto-migration ✅
+
+Server plugin `auto-migrate.ts` creates tables on first run via `runMigrations()` state machine tracking applied migrations.
 
 ---
 
@@ -313,10 +343,14 @@ export default defineNuxtConfig({
   nuxtCart: {
     persist: true,        ✅
     storageKey: 'my-cart',✅
-    apiRoutes: true,      ⬜ (Phase 4)
+    apiRoutes: true,      ✅ (Phase 4)
     currency: 'HUF',      ✅
     coupons: true,        ✅
     maxQuantity: 50,      ✅
+    connector: {          ✅ (Phase 4, optional, default is sqlite)
+      name: 'sqlite',
+      options: { path: './data/cart.sqlite3' }
+    }
   }
 })
 ```
@@ -367,7 +401,7 @@ cart.onCheckout(async (cartData) => { ... })
 | **1. MVP** | `useCart()` + Pinia store + localStorage + types + plugin | ✅ Done | `module.ts`, `types.ts`, `composables/useCart.ts`, `plugin.ts` |
 | **2. Coupons** | `applyCoupon`, `removeCoupon`, `discountedTotal`, `onValidateCoupon`, `isValidCoupon` | ✅ Done | `useCart.ts`, `types.ts`, `useCart.spec.ts` |
 | **3. Components** | `NCartDrawer`, `NCartItem`, `NCartSummary`, `NCartQuantity` | ✅ Done | `components/` folder |
-| **4. Server routes** | REST API + DB + token middleware + auto-migrate + checkout | 🔜 Next | `server/api/`, `server/composables/useCartDb.ts` |
+| **4. Server routes** | REST API (9 endpoints) + db0 DB + token middleware + auto-migrate + client-server sync | ✅ Done | `server/api/`, `server/composables/useCartDb.ts` |
 | **5. Polish** | `onCheckout`/`checkout` hooks, playground, CI, lint, publish | 🔜 Planned | `test/`, `README.md`, `playground/` |
 
 ---
@@ -377,9 +411,9 @@ cart.onCheckout(async (cartData) => { ... })
 - **Module name**: `nuxt-cart` ✅
 - **Config key**: `nuxtCart` ✅
 - **Component prefix**: `N` (e.g., `NCartDrawer`, `NCartItem`) ✅
-- **API route naming**: `{resource}.{method}.ts` (e.g., `items.post.ts`) ⬜
+- **API route naming**: `{resource}.{method}.ts` (e.g., `items.post.ts`) ✅
 - **Build**: unbuild with `build.config.ts`, externals for `@nuxt/kit`, `nuxt`, `vue` ✅
-- **Tests**: vitest (49 tests) ✅
+- **Tests**: vitest (49 unit + server API tests) ✅
 - **CI**: GitHub Actions (lint → typecheck → test) ⬜
 
 ---
@@ -387,6 +421,6 @@ cart.onCheckout(async (cartData) => { ... })
 ## Open Questions
 
 1. ✅ ~~Package manager: yarn or pnpm?~~ → **pnpm**
-2. ❓ Database: use `@nuxt/database` (if stable) or raw Drizzle/Kysely?
-3. ❓ Should `auto-migrate` be a separate module dependency or built-in?
+2. ✅ ~~Database~~ → **`db0`** (UnJS abstraction, same as nuxt-users)
+3. ✅ ~~Auto-migrate~~ → **Built-in**: Nitro plugin runs `runMigrations()` state machine on startup
 4. ✅ ~~Component styling~~ → **Rely on Nuxt UI v4 semantic classes**

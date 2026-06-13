@@ -1,3 +1,14 @@
+export type DatabaseType = 'sqlite' | 'mysql' | 'postgresql'
+
+export type DatabaseConfig = {
+  path?: string
+  host?: string
+  port?: number
+  user?: string
+  password?: string
+  database?: string
+}
+
 export interface ModuleOptions {
   persist?: boolean
   storageKey?: string
@@ -5,6 +16,10 @@ export interface ModuleOptions {
   currency?: string
   coupons?: boolean
   maxQuantity?: number
+  connector?: {
+    name: DatabaseType
+    options: DatabaseConfig
+  }
 }
 
 export interface CartItem {

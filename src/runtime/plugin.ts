@@ -7,8 +7,11 @@ export default defineNuxtPlugin({
     if (!config?.persist) return
 
     const cart = useCart()
-
     cart.load()
+
+    if (config.apiRoutes) {
+      cart.syncFromServer()
+    }
 
     const saveCart = () => {
       cart.persist()
