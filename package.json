@@ -62,21 +62,19 @@
     "defu": "^6.1.4",
     "destr": "^2.0.3"
   },
-  "optionalDependencies": {
-    "better-sqlite3": "^12.2.0",
-    "mysql2": "^3.14.2",
-    "pg": "^8.16.3"
-  },
   "devDependencies": {
     "@nuxt/module-builder": "^1.0.0",
     "@nuxt/schema": "^4.0.0",
     "@nuxt/ui": "^4.0.0",
     "@pinia/nuxt": "^0.11.0",
     "@types/node": "^22.14.1",
+    "better-sqlite3": "^12.2.0",
     "changelogen": "^0.6.2",
     "dotenv-cli": "^11.0.0",
+    "mysql2": "^3.14.2",
     "nuxt": "^4.0.0",
     "oxlint": "^1.69.0",
+    "pg": "^8.16.3",
     "pinia": "^3.0.0",
     "typescript": "~5.8.3",
     "vitepress": "^1.6.4",
@@ -87,6 +85,9 @@
   "peerDependencies": {
     "@nuxt/ui": "^4.0.0",
     "@pinia/nuxt": "^0.11.0",
+    "better-sqlite3": "*",
+    "mysql2": "*",
+    "pg": "*",
     "pinia": "^3.0.0"
   },
   "pnpm": {
@@ -96,6 +97,15 @@
   },
   "peerDependenciesMeta": {
     "@nuxt/ui": {
+      "optional": true
+    },
+    "better-sqlite3": {
+      "optional": true
+    },
+    "mysql2": {
+      "optional": true
+    },
+    "pg": {
       "optional": true
     }
   }
